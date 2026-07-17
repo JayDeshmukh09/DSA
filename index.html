@@ -645,10 +645,320 @@ header::after {
 .nd-info-btn:hover .nd-info-text { fill: var(--ink); }
 .nd-info-btn { cursor: pointer; }
 
+/* ── Quiz "t" icon button ────────────────────────────────────── */
+.nd-quiz-circle {
+  fill: var(--parchment);
+  stroke: #4a7c3a;
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: fill 0.15s, stroke 0.15s;
+}
+.nd-quiz-btn:hover .nd-quiz-circle {
+  fill: #7aaa6a;
+  stroke: #3a6a2a;
+}
+.nd-quiz-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 700;
+  fill: #2f5020;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+.nd-quiz-btn:hover .nd-quiz-text { fill: #0d200a; }
+.nd-quiz-btn { cursor: pointer; }
+
 /* Dark mode icon overrides */
 [id="root"].dark .nd-info-circle { fill: var(--parchment-2); }
 [id="root"].dark .nd-info-btn:hover .nd-info-circle { fill: var(--gold); }
 [id="root"].dark .nd-info-text { fill: var(--leather-2); }
+[id="root"].dark .nd-quiz-circle { fill: var(--parchment-2); stroke: #7aaa6a; }
+[id="root"].dark .nd-quiz-btn:hover .nd-quiz-circle { fill: #3a6a2a; }
+[id="root"].dark .nd-quiz-text { fill: #a0d090; }
+
+/* ═══════════════════════════════════════════════════════════════
+   QUIZ DIALOG
+═══════════════════════════════════════════════════════════════ */
+#quiz-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 1100;
+  background: rgba(30, 15, 6, 0.72);
+  backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+#quiz-backdrop.open { display: flex; }
+
+#quiz-dialog {
+  position: relative;
+  width: min(820px, 92vw);
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  background: var(--parchment);
+  border: 2px solid var(--cream-border);
+  border-radius: 4px;
+  box-shadow: 0 12px 48px rgba(30,15,6,0.55), inset 0 0 60px rgba(44,26,14,0.06);
+  overflow: hidden;
+  font-family: 'EB Garamond', serif;
+  animation: nd-in 0.22s ease;
+}
+
+#quiz-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 20px 26px 16px;
+  background: linear-gradient(135deg, var(--parchment-2) 0%, var(--parchment) 100%);
+  border-bottom: 2px solid var(--cream-border);
+  flex-shrink: 0;
+}
+#quiz-title {
+  flex: 1;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--leather);
+  line-height: 1.25;
+}
+#quiz-subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+#quiz-header > div:first-child { flex: 1; }
+#quiz-close {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+#quiz-close:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
+
+#quiz-body {
+  flex: 1; overflow-y: auto;
+  padding: 24px 30px 30px;
+}
+#quiz-body::-webkit-scrollbar { width: 6px; }
+#quiz-body::-webkit-scrollbar-track { background: var(--parchment-2); }
+#quiz-body::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
+
+/* Progress bar */
+.quiz-progress-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px;
+}
+.quiz-progress-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--sepia);
+  white-space: nowrap;
+}
+.quiz-progress-track {
+  flex: 1; height: 8px;
+  background: var(--parchment-3);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--cream-border);
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width 0.3s ease;
+}
+
+/* Question */
+.quiz-question {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* Options */
+.quiz-options { display: flex; flex-direction: column; gap: 12px; }
+.quiz-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.02rem;
+  color: var(--ink-2);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-align: left;
+  font-family: 'EB Garamond', serif;
+}
+.quiz-option:hover { background: var(--parchment-2); border-color: var(--gold); }
+.quiz-option.selected {
+  background: linear-gradient(135deg, #fdf3dc, var(--parchment-2));
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+.quiz-option-marker {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sepia);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 0.85rem;
+  color: var(--sepia);
+  background: var(--parchment);
+}
+.quiz-option.selected .quiz-option-marker {
+  background: var(--gold); color: #fff; border-color: var(--gold);
+}
+
+/* Nav buttons */
+.quiz-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-top: 26px;
+}
+.quiz-btn {
+  padding: 10px 22px;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; font-weight: 600;
+  color: var(--btn-text);
+  transition: background 0.15s, transform 0.1s;
+}
+.quiz-btn:hover:not(:disabled) { background: var(--btn-hover); }
+.quiz-btn:active:not(:disabled) { transform: translateY(1px); }
+.quiz-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.quiz-btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: #fff; border-color: var(--gold);
+}
+.quiz-btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
+
+/* ── Report ──────────────────────────────────────────────────── */
+#quiz-report { display: flex; flex-direction: column; gap: 22px; }
+
+.quiz-score-card {
+  text-align: center;
+  padding: 22px;
+  background: linear-gradient(135deg, #fdf6e3 0%, var(--parchment-2) 100%);
+  border: 2px solid var(--gold);
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(44,26,14,0.12);
+}
+.quiz-score-big {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem; font-weight: 800;
+  color: var(--leather);
+  line-height: 1.1;
+}
+.quiz-score-pct { font-size: 1.1rem; color: var(--sepia); margin-top: 4px; font-style: italic; }
+.quiz-score-verdict {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+.quiz-verdict-pass { background: #dff0d5; color: #2f6a1a; border: 1.5px solid #7aaa6a; }
+.quiz-verdict-fail { background: #f7ddd5; color: #8b3a2f; border: 1.5px solid #c97a6a; }
+
+.quiz-charts {
+  display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
+}
+.quiz-chart-box {
+  flex: 1 1 260px;
+  min-width: 240px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 6px;
+  padding: 14px 16px 8px;
+}
+.quiz-chart-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; font-weight: 700;
+  color: var(--leather-3);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* Per-question breakdown */
+.quiz-review-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--leather);
+  border-bottom: 2px solid var(--cream-border);
+  padding-bottom: 6px;
+}
+.quiz-review-item {
+  padding: 14px 16px;
+  border-radius: 5px;
+  border-left: 4px solid var(--cream-border);
+  background: var(--input-bg);
+}
+.quiz-review-item.correct { border-left-color: #4a7c3a; background: #f0f7ec; }
+.quiz-review-item.wrong   { border-left-color: #8b3a2f; background: #f9efec; }
+.quiz-review-q {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600; font-size: 1rem; color: var(--ink);
+  margin-bottom: 8px;
+}
+.quiz-review-a { font-size: 0.95rem; line-height: 1.6; margin: 2px 0; }
+.quiz-review-a .lbl { font-weight: 700; }
+.quiz-review-yours-wrong { color: #8b3a2f; }
+.quiz-review-correct { color: #2f6a1a; }
+.quiz-review-explain {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--cream-border);
+  font-style: italic; font-size: 0.92rem; color: var(--ink-2);
+}
+
+/* Name / email form */
+.quiz-form {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 20px;
+  background: var(--parchment-2);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 6px;
+}
+.quiz-form-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 1.05rem; color: var(--leather);
+}
+.quiz-form label { font-size: 0.88rem; color: var(--sepia); font-weight: 600; }
+.quiz-form input {
+  padding: 10px 12px;
+  border: 1.5px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  font-family: 'EB Garamond', serif;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.quiz-form input:focus { outline: none; border-color: var(--input-focus); }
+.quiz-form-error { color: #8b3a2f; font-size: 0.85rem; font-style: italic; min-height: 1em; }
+.quiz-form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Dark mode quiz overrides */
+[id="root"].dark .quiz-option { background: #231810; color: var(--leather-2); }
+[id="root"].dark .quiz-option:hover { background: #2e2010; }
+[id="root"].dark .quiz-option.selected { background: linear-gradient(135deg, #2e2010, #231810); }
+[id="root"].dark .quiz-score-card { background: linear-gradient(135deg, #2e2010, #231810); }
+[id="root"].dark .quiz-chart-box,
+[id="root"].dark .quiz-review-item { background: #231810; }
+[id="root"].dark .quiz-review-item.correct { background: #16240f; }
+[id="root"].dark .quiz-review-item.wrong { background: #2a130f; }
+[id="root"].dark .quiz-form { background: #231810; }
+[id="root"].dark .quiz-form input { background: #2e2010; color: var(--leather-2); }
 </style>
 </head>
 
@@ -733,11 +1043,27 @@ header::after {
   </div>
 </div>
 
+<!-- Quiz Dialog — must be in DOM before the inline script runs -->
+<div id="quiz-backdrop" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+  <div id="quiz-dialog">
+    <div id="quiz-header">
+      <div>
+        <div id="quiz-title"></div>
+        <div id="quiz-subtitle">Knowledge Check</div>
+      </div>
+      <button id="quiz-close" onclick="closeQuiz()" title="Close (Esc)" aria-label="Close">&#x2715;</button>
+    </div>
+    <div id="quiz-body"></div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="data/maven-data.js"></script>
 
 <script>
@@ -763,46 +1089,56 @@ const mm = Markmap.create('#mindmap', mmOptions, MAVEN_ROOT);
 window.mm = mm;
 setTimeout(() => { mm.fit(); }, 400);
 
-// ── Info icon injection ───────────────────────────────────────────
-// Appends a small SVG "i" button to every node that has an explanation.
+// ── Node icon injection ───────────────────────────────────────────
+// Appends small SVG buttons ("i" for info, "t" for quiz) to nodes.
 // Re-runs after every render (expand/collapse re-creates DOM nodes).
-let _ndObserver = new MutationObserver(debounce(injectInfoIcons, 80));
+let _ndObserver = new MutationObserver(debounce(injectNodeIcons, 80));
 
-function injectInfoIcons() {
+function injectNodeIcons() {
   // Disconnect first so our own DOM mutations don't re-trigger the observer
   _ndObserver.disconnect();
 
-  document.querySelectorAll('.nd-info-btn').forEach(el => el.remove());
+  document.querySelectorAll('.nd-info-btn, .nd-quiz-btn').forEach(el => el.remove());
 
   d3.selectAll('.markmap-node').each(function(d) {
     const key = d && d.content;
-    if (!key || !MAVEN_EXPLANATIONS[key]) return;
+    if (!key) return;
+    const exp  = MAVEN_EXPLANATIONS[key];
+    const quiz = MAVEN_QUIZZES[key];
+    if (!exp && !quiz) return;
     const fo = this.querySelector('foreignObject');
     if (!fo) return;
 
     const foX = fo.x.baseVal.value;      // negative: text is left of the junction dot
     const r   = 8;                        // icon circle radius
-    const cx  = foX - r - 6;             // place just to the left of the text label
-    const cy  = 0;
+    const gap = 4;
 
-    const exp  = MAVEN_EXPLANATIONS[key];
-    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    icon.classList.add('nd-info-btn');
-    icon.setAttribute('transform', `translate(${cx},${cy})`);
-    icon.innerHTML =
-      `<circle r="${r}" class="nd-info-circle"/>` +
-      `<text class="nd-info-text" dy="0.35em">i</text>`;
-    icon.addEventListener('click', function(e) {
-      e.stopPropagation();
-      openDialog(key, exp);
+    // Build ordered icon list (closest to text first, stacks leftward)
+    const icons = [];
+    if (exp)  icons.push({ cls: 'nd-info-btn', circle: 'nd-info-circle', text: 'nd-info-text', ch: 'i', on: () => openDialog(key, exp) });
+    if (quiz) icons.push({ cls: 'nd-quiz-btn', circle: 'nd-quiz-circle', text: 'nd-quiz-text', ch: 't', on: () => openQuiz(key, quiz) });
+
+    const node = this;
+    icons.forEach((cfg, idx) => {
+      const cx = foX - r - 6 - idx * (2 * r + gap);
+      const g  = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.classList.add(cfg.cls);
+      g.setAttribute('transform', `translate(${cx},0)`);
+      g.innerHTML =
+        `<circle r="${r}" class="${cfg.circle}"/>` +
+        `<text class="${cfg.text}" dy="0.35em">${cfg.ch}</text>`;
+      g.addEventListener('click', function(e) {
+        e.stopPropagation();
+        cfg.on();
+      });
+      node.appendChild(g);
     });
-    this.appendChild(icon);
   });
 
   // Resume watching for markmap re-renders (expand/collapse)
   _ndObserver.observe(document.getElementById('mindmap'), { childList: true, subtree: true });
 }
-setTimeout(injectInfoIcons, 450);
+setTimeout(injectNodeIcons, 450);
 
 function debounce(fn, delay) {
   let t; return function() { clearTimeout(t); t = setTimeout(fn, delay); };
@@ -833,13 +1169,13 @@ function walk(node, fn) {
 // ── Expand / Collapse All ────────────────────────────────────────
 function expandAll() {
   walk(MAVEN_ROOT, n => { n.payload = { ...n.payload, fold: 0 }; });
-  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectInfoIcons(); });
+  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
 }
 function collapseAll() {
   walk(MAVEN_ROOT, n => {
     if (n !== MAVEN_ROOT) n.payload = { ...n.payload, fold: 1 };
   });
-  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectInfoIcons(); });
+  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
 }
 
 
@@ -1088,6 +1424,399 @@ function onDialogKey(e) {
 // Close on backdrop click (not on dialog itself)
 document.getElementById('nd-backdrop').addEventListener('click', function(e) {
   if (e.target === this) closeDialog();
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  QUIZ FEATURE
+// ══════════════════════════════════════════════════════════════════
+let quizState = null; // { title, questions[], answers[], index, submitted }
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function openQuiz(title, quiz) {
+  const count  = quiz.count || MAVEN_META.quizDefaultCount || 5;
+  const picked = shuffle(quiz.questions).slice(0, Math.min(count, quiz.questions.length));
+  quizState = {
+    title,
+    questions: picked,
+    answers: Array(picked.length).fill(null),
+    index: 0,
+    submitted: false
+  };
+  document.getElementById('quiz-title').textContent = title;
+  document.getElementById('quiz-subtitle').textContent = 'Knowledge Check · ' + picked.length + ' questions';
+  renderQuestion();
+  document.getElementById('quiz-backdrop').classList.add('open');
+  document.addEventListener('keydown', onQuizKey);
+}
+
+function closeQuiz() {
+  document.getElementById('quiz-backdrop').classList.remove('open');
+  document.removeEventListener('keydown', onQuizKey);
+  quizState = null;
+}
+
+function onQuizKey(e) {
+  if (e.key === 'Escape') closeQuiz();
+}
+
+function renderQuestion() {
+  const body = document.getElementById('quiz-body');
+  const st   = quizState;
+  const q    = st.questions[st.index];
+  const total = st.questions.length;
+  const pct  = Math.round(((st.index + 1) / total) * 100);
+
+  body.innerHTML = '';
+
+  // Progress
+  const prow = document.createElement('div');
+  prow.className = 'quiz-progress-row';
+  prow.innerHTML =
+    `<span class="quiz-progress-label">Question ${st.index + 1} / ${total}</span>` +
+    `<div class="quiz-progress-track"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>`;
+  body.appendChild(prow);
+
+  // Question
+  const qEl = document.createElement('div');
+  qEl.className = 'quiz-question';
+  qEl.textContent = q.q;
+  body.appendChild(qEl);
+
+  // Options
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'quiz-options';
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option' + (st.answers[st.index] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="quiz-option-marker">${letters[i]}</span><span>${escapeHtml(opt)}</span>`;
+    btn.addEventListener('click', () => {
+      st.answers[st.index] = i;
+      renderQuestion();
+    });
+    optsWrap.appendChild(btn);
+  });
+  body.appendChild(optsWrap);
+
+  // Nav
+  const nav = document.createElement('div');
+  nav.className = 'quiz-nav';
+
+  const prev = document.createElement('button');
+  prev.className = 'quiz-btn';
+  prev.textContent = '← Previous';
+  prev.disabled = st.index === 0;
+  prev.addEventListener('click', () => { st.index--; renderQuestion(); });
+
+  nav.appendChild(prev);
+
+  const answeredCount = st.answers.filter(a => a !== null).length;
+
+  if (st.index < total - 1) {
+    const next = document.createElement('button');
+    next.className = 'quiz-btn quiz-btn-primary';
+    next.textContent = 'Next →';
+    next.addEventListener('click', () => { st.index++; renderQuestion(); });
+    nav.appendChild(next);
+  } else {
+    const submit = document.createElement('button');
+    submit.className = 'quiz-btn quiz-btn-primary';
+    submit.textContent = 'Submit (' + answeredCount + '/' + total + ')';
+    submit.disabled = answeredCount < total;
+    submit.addEventListener('click', submitQuiz);
+    nav.appendChild(submit);
+  }
+
+  body.appendChild(nav);
+  body.scrollTop = 0;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function submitQuiz() {
+  quizState.submitted = true;
+  renderReport();
+}
+
+// ── Report ────────────────────────────────────────────────────────
+function renderReport() {
+  const st    = quizState;
+  const total = st.questions.length;
+  let correct = 0;
+  st.questions.forEach((q, i) => { if (st.answers[i] === q.answer) correct++; });
+  const pct = Math.round((correct / total) * 100);
+  const pass = pct >= 60;
+
+  document.getElementById('quiz-subtitle').textContent = 'Results · ' + st.title;
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = '';
+
+  const report = document.createElement('div');
+  report.id = 'quiz-report';
+
+  // Score card
+  const card = document.createElement('div');
+  card.className = 'quiz-score-card';
+  card.innerHTML =
+    `<div class="quiz-score-big">${correct} / ${total}</div>` +
+    `<div class="quiz-score-pct">${pct}% correct</div>` +
+    `<div class="quiz-score-verdict ${pass ? 'quiz-verdict-pass' : 'quiz-verdict-fail'}">${pass ? 'PASSED' : 'KEEP STUDYING'}</div>`;
+  report.appendChild(card);
+
+  // Charts
+  const charts = document.createElement('div');
+  charts.className = 'quiz-charts';
+  charts.innerHTML =
+    `<div class="quiz-chart-box"><div class="quiz-chart-title">Score</div><div id="chart-donut"></div></div>` +
+    `<div class="quiz-chart-box"><div class="quiz-chart-title">Correct vs Incorrect</div><div id="chart-bar"></div></div>`;
+  report.appendChild(charts);
+
+  // Review heading
+  const rh = document.createElement('div');
+  rh.className = 'quiz-review-heading';
+  rh.textContent = 'Question Review';
+  report.appendChild(rh);
+
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+  st.questions.forEach((q, i) => {
+    const isCorrect = st.answers[i] === q.answer;
+    const item = document.createElement('div');
+    item.className = 'quiz-review-item ' + (isCorrect ? 'correct' : 'wrong');
+    const yourIdx = st.answers[i];
+    const yourTxt = yourIdx === null ? 'No answer' : `${letters[yourIdx]}. ${q.options[yourIdx]}`;
+    const corrTxt = `${letters[q.answer]}. ${q.options[q.answer]}`;
+    item.innerHTML =
+      `<div class="quiz-review-q">${i + 1}. ${escapeHtml(q.q)}</div>` +
+      `<div class="quiz-review-a"><span class="lbl">Your answer:</span> ` +
+        `<span class="${isCorrect ? 'quiz-review-correct' : 'quiz-review-yours-wrong'}">${escapeHtml(yourTxt)} ${isCorrect ? '✓' : '✗'}</span></div>` +
+      (isCorrect ? '' : `<div class="quiz-review-a"><span class="lbl">Correct answer:</span> <span class="quiz-review-correct">${escapeHtml(corrTxt)}</span></div>`) +
+      (q.explain ? `<div class="quiz-review-explain">${escapeHtml(q.explain)}</div>` : '');
+    report.appendChild(item);
+  });
+
+  // Action buttons
+  const actions = document.createElement('div');
+  actions.className = 'quiz-nav';
+  const retake = document.createElement('button');
+  retake.className = 'quiz-btn';
+  retake.textContent = '↻ Retake';
+  retake.addEventListener('click', () => {
+    const quiz = MAVEN_QUIZZES[st.title];
+    if (quiz) openQuiz(st.title, quiz);
+  });
+  const dl = document.createElement('button');
+  dl.className = 'quiz-btn quiz-btn-primary';
+  dl.textContent = '⬇ Download PDF';
+  dl.addEventListener('click', () => showPdfForm(correct, total, pct));
+  actions.appendChild(retake);
+  actions.appendChild(dl);
+  report.appendChild(actions);
+
+  body.appendChild(report);
+  body.scrollTop = 0;
+
+  // Draw charts after DOM is in place
+  drawDonut(pct);
+  drawBar(correct, total - correct);
+}
+
+// ── D3 Charts ─────────────────────────────────────────────────────
+function quizChartColors() {
+  const dark = document.getElementById('root').classList.contains('dark');
+  return {
+    track:   dark ? '#3d2b1f' : '#e2d0a8',
+    strong:  dark ? '#f0e4c8' : '#2c1a0e',
+    muted:   dark ? '#c9a86a' : '#7a5c3a',
+    axis:    dark ? '#d4b87a' : '#3d2b1f'
+  };
+}
+
+function drawDonut(pct) {
+  const c = quizChartColors();
+  const size = 160, r = 70, thick = 22;
+  const svg = d3.select('#chart-donut').append('svg')
+    .attr('width', size).attr('height', size)
+    .attr('viewBox', `0 0 ${size} ${size}`);
+  const g = svg.append('g').attr('transform', `translate(${size / 2},${size / 2})`);
+
+  const arc = d3.arc().innerRadius(r - thick).outerRadius(r).startAngle(0).cornerRadius(4);
+  // Track
+  g.append('path')
+    .attr('d', arc({ endAngle: 2 * Math.PI }))
+    .attr('fill', c.track);
+  // Value
+  const col = pct >= 60 ? '#4a7c3a' : '#b8860b';
+  g.append('path')
+    .attr('fill', col)
+    .transition().duration(700)
+    .attrTween('d', () => {
+      const interp = d3.interpolate(0, (pct / 100) * 2 * Math.PI);
+      return t => arc({ endAngle: interp(t) });
+    });
+  // Center label
+  g.append('text')
+    .attr('text-anchor', 'middle').attr('dy', '0.35em')
+    .style('font-family', "'Playfair Display', serif")
+    .style('font-size', '28px').style('font-weight', '800')
+    .style('fill', c.strong)
+    .text(pct + '%');
+}
+
+function drawBar(correct, incorrect) {
+  const c = quizChartColors();
+  const w = 240, h = 150, m = { top: 10, right: 14, bottom: 28, left: 34 };
+  const iw = w - m.left - m.right, ih = h - m.top - m.bottom;
+  const data = [
+    { label: 'Correct', value: correct, color: '#4a7c3a' },
+    { label: 'Incorrect', value: incorrect, color: '#8b3a2f' }
+  ];
+  const svg = d3.select('#chart-bar').append('svg')
+    .attr('width', w).attr('height', h).attr('viewBox', `0 0 ${w} ${h}`);
+  const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
+
+  const x = d3.scaleBand().domain(data.map(d => d.label)).range([0, iw]).padding(0.35);
+  const maxV = Math.max(1, correct + incorrect);
+  const y = d3.scaleLinear().domain([0, maxV]).range([ih, 0]);
+
+  // Y axis (integer ticks)
+  g.append('g')
+    .call(d3.axisLeft(y).ticks(Math.min(maxV, 5)).tickFormat(d3.format('d')))
+    .selectAll('text').style('font-family', "'EB Garamond', serif").style('font-size', '10px').style('fill', c.muted);
+  // X axis
+  g.append('g').attr('transform', `translate(0,${ih})`)
+    .call(d3.axisBottom(x))
+    .selectAll('text').style('font-family', "'EB Garamond', serif").style('font-size', '11px').style('fill', c.axis);
+
+  g.selectAll('.bar').data(data).enter().append('rect')
+    .attr('x', d => x(d.label)).attr('width', x.bandwidth())
+    .attr('y', ih).attr('height', 0)
+    .attr('fill', d => d.color).attr('rx', 3)
+    .transition().duration(650)
+    .attr('y', d => y(d.value)).attr('height', d => ih - y(d.value));
+
+  g.selectAll('.lbl').data(data).enter().append('text')
+    .attr('x', d => x(d.label) + x.bandwidth() / 2).attr('y', d => y(d.value) - 5)
+    .attr('text-anchor', 'middle')
+    .style('font-family', "'Playfair Display', serif").style('font-weight', '700')
+    .style('font-size', '12px').style('fill', c.strong)
+    .text(d => d.value);
+}
+
+// ── PDF export (name + email) ─────────────────────────────────────
+function showPdfForm(correct, total, pct) {
+  const body = document.getElementById('quiz-body');
+  const existing = document.getElementById('quiz-pdf-form');
+  if (existing) { existing.scrollIntoView({ behavior: 'smooth' }); return; }
+
+  const form = document.createElement('div');
+  form.id = 'quiz-pdf-form';
+  form.className = 'quiz-form';
+  form.innerHTML =
+    `<div class="quiz-form-title">Enter your details for the PDF report</div>` +
+    `<label for="pdf-name">Full Name</label>` +
+    `<input id="pdf-name" type="text" placeholder="e.g. Jane Doe" />` +
+    `<label for="pdf-email">Email</label>` +
+    `<input id="pdf-email" type="email" placeholder="e.g. jane@example.com" />` +
+    `<div class="quiz-form-error" id="pdf-form-error"></div>` +
+    `<div class="quiz-form-actions">` +
+      `<button class="quiz-btn" id="pdf-cancel">Cancel</button>` +
+      `<button class="quiz-btn quiz-btn-primary" id="pdf-confirm">Generate PDF</button>` +
+    `</div>`;
+  document.getElementById('quiz-report').appendChild(form);
+  form.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('pdf-name').focus();
+
+  document.getElementById('pdf-cancel').addEventListener('click', () => form.remove());
+  document.getElementById('pdf-confirm').addEventListener('click', () => {
+    const name  = document.getElementById('pdf-name').value.trim();
+    const email = document.getElementById('pdf-email').value.trim();
+    const err   = document.getElementById('pdf-form-error');
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name)      { err.textContent = 'Please enter your name.'; return; }
+    if (!emailOk)   { err.textContent = 'Please enter a valid email address.'; return; }
+    err.textContent = '';
+    exportQuizPdf(name, email, correct, total, pct);
+  });
+}
+
+async function exportQuizPdf(name, email, correct, total, pct) {
+  const confirmBtn = document.getElementById('pdf-confirm');
+  if (confirmBtn) { confirmBtn.textContent = 'Generating…'; confirmBtn.disabled = true; }
+
+  // Remove the form so it isn't captured, then stamp a header for the PDF
+  const form = document.getElementById('quiz-pdf-form');
+  if (form) form.remove();
+
+  const report = document.getElementById('quiz-report');
+  const now = new Date();
+  const dateStr = now.toLocaleString();
+
+  const header = document.createElement('div');
+  header.id = 'pdf-stamp';
+  header.style.cssText = 'padding:16px 18px;margin-bottom:18px;border:2px solid #b8860b;border-radius:6px;background:#fdf6e3;font-family:Georgia,serif;';
+  header.innerHTML =
+    `<div style="font-size:20px;font-weight:800;color:#2c1a0e;font-family:Georgia,serif;">Maven Quiz Report</div>` +
+    `<div style="font-size:14px;color:#5c3a1e;margin-top:6px;">Topic: <b>${escapeHtml(quizState.title)}</b></div>` +
+    `<div style="font-size:13px;color:#3d2b1f;margin-top:8px;">Name: <b>${escapeHtml(name)}</b> &nbsp;|&nbsp; Email: <b>${escapeHtml(email)}</b></div>` +
+    `<div style="font-size:13px;color:#3d2b1f;">Date: ${escapeHtml(dateStr)} &nbsp;|&nbsp; Score: <b>${correct}/${total} (${pct}%)</b></div>`;
+  report.insertBefore(header, report.firstChild);
+
+  // Hide the action buttons row while capturing
+  const actionsRow = report.querySelector('.quiz-nav');
+  if (actionsRow) actionsRow.style.display = 'none';
+
+  const isDark = document.getElementById('root').classList.contains('dark');
+  const bg = isDark ? '#1a1208' : '#f5edd6';
+
+  try {
+    const canvas = await html2canvas(report, { scale: 2, backgroundColor: bg, useCORS: true });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+    const imgData = canvas.toDataURL('image/png');
+
+    let heightLeft = imgH;
+    let position = 0;
+    pdf.addImage(imgData, 'PNG', 0, position, imgW, imgH);
+    heightLeft -= pageH;
+    while (heightLeft > 0) {
+      position -= pageH;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgW, imgH);
+      heightLeft -= pageH;
+    }
+    const safeTitle = quizState.title.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
+    const dateFile = now.toISOString().slice(0, 10);
+    pdf.save(`Maven-Quiz-${safeTitle}-${dateFile}.pdf`);
+  } catch (e) {
+    alert('Could not generate PDF: ' + e.message);
+  } finally {
+    // Restore UI
+    if (header) header.remove();
+    if (actionsRow) actionsRow.style.display = '';
+    if (confirmBtn) { confirmBtn.textContent = 'Generate PDF'; confirmBtn.disabled = false; }
+  }
+}
+
+// Close on backdrop click (not on dialog itself)
+document.getElementById('quiz-backdrop').addEventListener('click', function(e) {
+  if (e.target === this) closeQuiz();
 });
 </script>
 </body>

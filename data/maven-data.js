@@ -6,7 +6,8 @@
   "subtitle": "Interview Guide — 11 Years Experience",
   "source": "Durgasoft by Nagoor Babu",
   "version": "1.0",
-  "lastUpdated": "2026-07-17"
+  "lastUpdated": "2026-07-17",
+  "quizDefaultCount": 5
 };
 
         var MAVEN_ROOT = {
@@ -1797,5 +1798,319 @@
     ],
     "tip": "The single most powerful thing you can say: 'After 11 years, my relationship with Maven has evolved from learning commands to designing build architecture. I now think about: how do we prevent dependency conflicts at scale, how do we make security patching as fast as possible, and how do we make the build a first-class citizen of our CI/CD pipeline rather than an afterthought.'",
     "analogy": "The difference between a junior and senior Maven answer is like the difference between a new driver who knows the traffic rules and an experienced driver who knows which route to take at rush hour, what to do when the motorway is closed, and how to drive in snow. Both know how to drive — only one has judgment."
+  }
+};
+
+        var MAVEN_QUIZZES = {
+  "What is Maven?": {
+    "count": 5,
+    "questions": [
+      {
+        "q": "What is Maven primarily used for?",
+        "options": [
+          "Memory management",
+          "Project management and build automation",
+          "Thread scheduling",
+          "Database indexing"
+        ],
+        "answer": 1,
+        "explain": "Maven is a project management and build automation tool, primarily for Java/JEE projects."
+      },
+      {
+        "q": "Which organization maintains Maven?",
+        "options": [
+          "Oracle",
+          "Google",
+          "Apache Software Foundation",
+          "Microsoft"
+        ],
+        "answer": 2,
+        "explain": "Maven is an open-source tool from the Apache Software Foundation."
+      },
+      {
+        "q": "Which project's build frustrations led to Maven's creation in 2002?",
+        "options": [
+          "Apache Tomcat",
+          "Jakarta Turbine",
+          "Spring Framework",
+          "Hibernate"
+        ],
+        "answer": 1,
+        "explain": "Jason van Zyl created Maven while working on the Jakarta Turbine project."
+      },
+      {
+        "q": "What does the word 'Maven' mean in Yiddish?",
+        "options": [
+          "Fast builder",
+          "Accumulator of knowledge",
+          "Dependency resolver",
+          "Code compiler"
+        ],
+        "answer": 1,
+        "explain": "Maven means 'accumulator of knowledge' or 'one who understands' in Yiddish."
+      },
+      {
+        "q": "Which ecosystem is Maven primarily designed for?",
+        "options": [
+          "Python",
+          "Java / JEE",
+          "Ruby",
+          "Go"
+        ],
+        "answer": 1,
+        "explain": "Maven is primarily used in the Java / JEE ecosystems."
+      },
+      {
+        "q": "Which of these does Maven NOT do automatically?",
+        "options": [
+          "Download dependency JARs",
+          "Compile source code",
+          "Write your business logic",
+          "Run unit tests"
+        ],
+        "answer": 2,
+        "explain": "Maven automates builds, dependencies, and tests — but you still write the business logic."
+      }
+    ]
+  },
+  "Convention over Configuration": {
+    "count": 5,
+    "questions": [
+      {
+        "q": "What does 'Convention over Configuration' mean in Maven?",
+        "options": [
+          "You must configure everything explicitly",
+          "Maven provides sensible defaults you only override when needed",
+          "Configuration files are optional and ignored",
+          "Conventions are enforced by the JVM"
+        ],
+        "answer": 1,
+        "explain": "Maven gives sensible defaults; you only configure what deviates from the standard."
+      },
+      {
+        "q": "Where does production Java source code live by convention?",
+        "options": [
+          "src/java",
+          "source/main",
+          "src/main/java",
+          "app/src"
+        ],
+        "answer": 2,
+        "explain": "The standard Maven layout places production code in src/main/java."
+      },
+      {
+        "q": "Where does compiled build output go by convention?",
+        "options": [
+          "build/",
+          "out/",
+          "target/",
+          "dist/"
+        ],
+        "answer": 2,
+        "explain": "Maven writes all build output to the target/ directory."
+      },
+      {
+        "q": "What is the main trade-off of Convention over Configuration?",
+        "options": [
+          "Slower builds",
+          "Reduced flexibility for non-standard layouts",
+          "More XML to write",
+          "No dependency management"
+        ],
+        "answer": 1,
+        "explain": "The convention limits flexibility; unusual legacy layouts can be hard to fit."
+      },
+      {
+        "q": "Why is Maven's opinionated structure valuable in large teams?",
+        "options": [
+          "It hides the source code",
+          "It makes onboarding and CI scripts consistent",
+          "It removes the need for tests",
+          "It compiles faster than javac"
+        ],
+        "answer": 1,
+        "explain": "Standardization means instant onboarding and identical CI scripts across projects."
+      }
+    ]
+  },
+  "What is POM?": {
+    "count": 5,
+    "questions": [
+      {
+        "q": "What does POM stand for?",
+        "options": [
+          "Project Output Manager",
+          "Project Object Model",
+          "Package Ordering Module",
+          "Primary Object Map"
+        ],
+        "answer": 1,
+        "explain": "POM = Project Object Model, the fundamental unit of Maven."
+      },
+      {
+        "q": "What is the filename of the POM in Maven 2 and later?",
+        "options": [
+          "project.xml",
+          "build.xml",
+          "pom.xml",
+          "maven.xml"
+        ],
+        "answer": 2,
+        "explain": "From Maven 2 onward the file is named pom.xml (it was project.xml in Maven 1)."
+      },
+      {
+        "q": "What format is the POM file written in?",
+        "options": [
+          "JSON",
+          "YAML",
+          "XML",
+          "TOML"
+        ],
+        "answer": 2,
+        "explain": "The POM is an XML file."
+      },
+      {
+        "q": "Every POM implicitly inherits from which base POM?",
+        "options": [
+          "The Root POM",
+          "The Super POM",
+          "The Master POM",
+          "The Parent POM"
+        ],
+        "answer": 1,
+        "explain": "Every POM inherits from the built-in Super POM, like every Java class extends Object."
+      },
+      {
+        "q": "Which command shows the fully merged effective POM?",
+        "options": [
+          "mvn show:pom",
+          "mvn help:effective-pom",
+          "mvn pom:print",
+          "mvn effective:pom"
+        ],
+        "answer": 1,
+        "explain": "mvn help:effective-pom prints the merged result of your POM and all parents."
+      }
+    ]
+  },
+  "Dependency Scopes": {
+    "count": 5,
+    "questions": [
+      {
+        "q": "What is the default dependency scope in Maven?",
+        "options": [
+          "runtime",
+          "test",
+          "compile",
+          "provided"
+        ],
+        "answer": 2,
+        "explain": "compile is the default scope — available at compile, test, and runtime."
+      },
+      {
+        "q": "Which scope is used for JUnit and Mockito?",
+        "options": [
+          "compile",
+          "test",
+          "provided",
+          "runtime"
+        ],
+        "answer": 1,
+        "explain": "test scope makes a dependency available only during test compilation and execution."
+      },
+      {
+        "q": "Which scope should the Servlet API use when deploying to Tomcat?",
+        "options": [
+          "compile",
+          "runtime",
+          "provided",
+          "system"
+        ],
+        "answer": 2,
+        "explain": "provided means the container supplies it at runtime, so it is not bundled."
+      },
+      {
+        "q": "Which scope fits a JDBC driver needed only at runtime?",
+        "options": [
+          "compile",
+          "runtime",
+          "test",
+          "provided"
+        ],
+        "answer": 1,
+        "explain": "runtime dependencies are not on the compile classpath but are packaged and available at runtime."
+      },
+      {
+        "q": "Which scope is used to import a BOM?",
+        "options": [
+          "import",
+          "bom",
+          "compile",
+          "provided"
+        ],
+        "answer": 0,
+        "explain": "import scope (with type=pom) in dependencyManagement pulls in a BOM's managed versions."
+      }
+    ]
+  },
+  "Default Lifecycle": {
+    "count": 5,
+    "questions": [
+      {
+        "q": "Running 'mvn package' will also run which phases?",
+        "options": [
+          "Only package",
+          "All phases before package (validate, compile, test)",
+          "Only compile",
+          "package and deploy"
+        ],
+        "answer": 1,
+        "explain": "Each phase triggers all preceding phases in the lifecycle automatically."
+      },
+      {
+        "q": "Which phase creates the JAR/WAR/EAR artifact?",
+        "options": [
+          "compile",
+          "verify",
+          "package",
+          "install"
+        ],
+        "answer": 2,
+        "explain": "The package phase produces the JAR/WAR/EAR."
+      },
+      {
+        "q": "Which phase copies the artifact to the local ~/.m2 repository?",
+        "options": [
+          "deploy",
+          "install",
+          "package",
+          "verify"
+        ],
+        "answer": 1,
+        "explain": "install copies the built artifact into the local repository."
+      },
+      {
+        "q": "Which phase pushes the artifact to a remote repository?",
+        "options": [
+          "install",
+          "release",
+          "deploy",
+          "publish"
+        ],
+        "answer": 2,
+        "explain": "deploy pushes the artifact to a remote repo such as Nexus or Artifactory."
+      },
+      {
+        "q": "What is the difference between a phase and a goal?",
+        "options": [
+          "They are identical",
+          "A phase is an abstract step; a goal is a specific plugin task bound to it",
+          "A goal runs before a phase",
+          "A phase is provided by plugins, a goal by Maven core"
+        ],
+        "answer": 1,
+        "explain": "Phases are abstract lifecycle steps; the real work is done by plugin goals bound to them."
+      }
+    ]
   }
 };
