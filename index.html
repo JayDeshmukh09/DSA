@@ -1300,9 +1300,24 @@ function injectNodeIcons() {
 }
 setTimeout(injectNodeIcons, 450);
 
-// Close the FAB when clicking the canvas (not on a FAB) or pressing Escape
+// Close the FAB when clicking the canvas (not on a FAB) or pressing Escape,
+// and recenter the clicked node in the viewport for better study visibility.
 document.getElementById('mindmap').addEventListener('click', function(e) {
   if (!e.target.closest('.nd-fab')) closeFab();
+
+  if (selectMode) return;                 // don't fight text selection
+  if (Math.hypot(e.clientX - _downX, e.clientY - _downY) > 5) return; // was a drag/pan, not a click
+  if (e.target.closest('.nd-fab') || e.target.closest('.gloss-ico')) return;
+  // Resolve the clicked node robustly: prefer the real event target (works when
+  // clicking the connector dot / node body), then fall back to coordinate
+  // hit-testing for wide leaf labels whose text is pointer-events:none and would
+  // otherwise let e.target miss the node.
+  const g = e.target.closest('.markmap-node') || nodeAtPoint(e.clientX, e.clientY);
+  if (!g) return;
+  const d = d3.select(g).datum();
+  // Wait until the node settles after any expand/collapse reflow, then center
+  // it exactly (device-independent) instead of guessing a fixed delay.
+  centerNodeByDatum(d);
 });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeFab(); });
 
@@ -1475,6 +1490,15 @@ const mmWrap  = document.getElementById('mm-wrap');
 const modeBtn = document.getElementById('mode-btn');
 const svgEl   = document.getElementById('mindmap');
 
+// Track pointer-down position to tell a click apart from a pan drag.
+// Capture phase on window runs before the event reaches the SVG, so it is not
+// blocked by d3.zoom's stopImmediatePropagation in its own SVG mousedown handler.
+let _downX = 0, _downY = 0;
+window.addEventListener('mousedown', e => {
+  _downX = e.clientX; _downY = e.clientY;
+}, true);
+
+// Keep suppressing native drag-selection on the canvas in drag mode.
 svgEl.addEventListener('mousedown', e => {
   if (!selectMode) e.preventDefault();
 });
@@ -1493,6 +1517,85 @@ function toggleMode() {
   }
 }
 
+// ── Centering helpers (shared by search focus and click-to-center) ─
+// Pan so that ONLY `gEl` moves to the viewport center, preserving the current
+// zoom scale so the visual style/zoom is unchanged. We measure real on-screen
+// positions (getBoundingClientRect) and shift the map by the exact pixel delta,
+// which avoids the local-coordinate ambiguity of getBBox on transformed nodes.
+function panToElement(gEl, dur = 350) {
+  if (!gEl) return;
+  // Measure the label (foreignObject) so the injected "+" FAB doesn't skew
+  // the center; fall back to the whole group if the label isn't present.
+  const target   = gEl.querySelector('foreignObject') || gEl;
+  const svgRect  = svgEl.getBoundingClientRect();
+  const nodeRect = target.getBoundingClientRect();
+  if (!nodeRect.width || !nodeRect.height) return;   // node not laid out yet
+
+  const nodeCX = nodeRect.left + nodeRect.width  / 2;
+  const nodeCY = nodeRect.top  + nodeRect.height / 2;
+  const vpCX   = svgRect.left  + svgRect.width  / 2;
+  const vpCY   = svgRect.top   + svgRect.height / 2;
+
+  const dx = vpCX - nodeCX;   // screen-space shift needed to center the node
+  const dy = vpCY - nodeCY;
+
+  const t = d3.zoomTransform(svgEl);
+  d3.select(svgEl)
+    .transition().duration(dur)
+    .call(mm.zoom.transform,
+      d3.zoomIdentity.translate(t.x + dx, t.y + dy).scale(t.k));
+}
+
+// markmap recreates DOM on re-render, so locate a node's current <g> by its datum.
+function findNodeByDatum(d) {
+  let el = null;
+  d3.selectAll('.markmap-node').each(function (dd) { if (dd === d) el = this; });
+  return el;
+}
+
+// Resolve which node was clicked by hit-testing the pointer against each node's
+// label box. Robust to pointer-events:none on label text (e.target can miss),
+// which is why wide/leaf nodes previously failed to center.
+function nodeAtPoint(x, y) {
+  let hit = null, best = Infinity;
+  d3.selectAll('.markmap-node').each(function () {
+    const box = (this.querySelector('foreignObject') || this).getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    if (x >= box.left && x <= box.right && y >= box.top && y <= box.bottom) {
+      const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      const dist = Math.hypot(x - cx, y - cy);      // nearest-center wins if labels overlap
+      if (dist < best) { best = dist; hit = this; }
+    }
+  });
+  return hit;
+}
+
+// Wait until the node bound to datum `d` stops moving (post expand/collapse),
+// then center it exactly. Self-cancels if a newer center request arrives, so
+// rapid clicks only center the last node.
+let _centerToken = 0;
+function centerNodeByDatum(d, maxWaitMs = 800) {
+  const myToken = ++_centerToken;
+  const start = performance.now();
+  let lastKey = '', stable = 0;
+  (function tick() {
+    if (myToken !== _centerToken) return;                 // superseded by newer click
+    const el = findNodeByDatum(d);
+    if (el) {
+      const target = el.querySelector('foreignObject') || el;
+      const r = target.getBoundingClientRect();
+      if (r.width && r.height) {
+        const key = Math.round(r.left) + ',' + Math.round(r.top) + ',' +
+                    Math.round(r.width) + ',' + Math.round(r.height);
+        if (key === lastKey) stable++; else { stable = 0; lastKey = key; }
+        if (stable >= 2) { panToElement(el); return; }    // settled -> center exactly
+      }
+    }
+    if (performance.now() - start > maxWaitMs) { if (el) panToElement(el); return; } // safety cap
+    requestAnimationFrame(tick);
+  })();
+}
+
 // ── Focus navigation ─────────────────────────────────────────────
 function focusMatch(i) {
   if (!matchNodes.length) return;
@@ -1501,22 +1604,7 @@ function focusMatch(i) {
   matchNodes.forEach((n, idx) =>
     n.classList.toggle('mm-focus', idx === matchIndex));
 
-  const g   = matchNodes[matchIndex];
-  const box = g.getBBox();
-  const t   = d3.zoomTransform(svgEl);
-
-  const nodeX = box.x + box.width  / 2;
-  const nodeY = box.y + box.height / 2;
-  const vpW   = svgEl.clientWidth;
-  const vpH   = svgEl.clientHeight;
-
-  const newTx = vpW / 2 - nodeX * t.k;
-  const newTy = vpH / 2 - nodeY * t.k;
-
-  d3.select(svgEl)
-    .transition().duration(350)
-    .call(mm.zoom.transform,
-      d3.zoomIdentity.translate(newTx, newTy).scale(t.k));
+  panToElement(matchNodes[matchIndex]);
 
   // Update counter label
   const countEl = document.getElementById('match-count');
