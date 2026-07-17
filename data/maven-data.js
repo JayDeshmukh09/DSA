@@ -322,7 +322,7 @@
               }
             },
             {
-              "content": "<version> — project version (e.g. 1.0-SNAPSHOT)",
+              "content": "<version> — project version (e.g. 1.0-[[SNAPSHOT]])",
               "children": [],
               "payload": {
                 "fold": 1
@@ -430,7 +430,7 @@
               }
             },
             {
-              "content": "Maven auto-pulls B and C for you",
+              "content": "Maven auto-pulls B and C for you as a [[transitive dependency]]",
               "children": [],
               "payload": {
                 "fold": 1
@@ -516,7 +516,7 @@
               }
             },
             {
-              "content": "Solution 2: BOM to lock all versions centrally",
+              "content": "Solution 2: [[BOM]] to lock all versions centrally",
               "children": [],
               "payload": {
                 "fold": 1
@@ -1225,7 +1225,7 @@
       },
       {
         "heading": "What It Actually Does",
-        "body": "Maven automates the entire software project lifecycle: it provides a standard directory structure, downloads all required JAR dependencies (including transitive ones), compiles source code, runs tests, packages the output (JAR/WAR/EAR), generates reports, and deploys to a server — all configured through a single pom.xml file."
+        "body": "Maven automates the entire software project lifecycle: it provides a standard directory structure, downloads all required JAR dependencies (including transitive ones), compiles source code, runs tests, packages the output (JAR/WAR/EAR) into a single [[artifact]], generates reports, and deploys to a server — all configured through a single pom.xml file."
       },
       {
         "heading": "The Name",
@@ -1248,7 +1248,7 @@
       },
       {
         "heading": "Dependency Download",
-        "body": "You declare a dependency in pom.xml (groupId + artifactId + version). Maven resolves it from your local cache (~/.m2), Maven Central, or your company Nexus/Artifactory server. It also recursively resolves all transitive dependencies."
+        "body": "You declare a dependency in pom.xml (groupId + artifactId + version). Maven resolves it from your local cache (~/.m2), Maven Central, or your company Nexus/Artifactory server. It also recursively resolves all transitive dependencies and adds them to the [[classpath]]."
       },
       {
         "heading": "Full Pipeline",
@@ -2113,4 +2113,14 @@
       }
     ]
   }
+};
+
+        var MAVEN_GLOSSARY = {
+  "SNAPSHOT": "A mutable, in-development version suffix (e.g. 1.0-SNAPSHOT). Maven re-downloads SNAPSHOT artifacts on every build, whereas released versions are immutable and never change once published.",
+  "artifact": "Any file produced or consumed by a Maven build — typically a JAR, WAR, or EAR — uniquely identified by its coordinates groupId:artifactId:version.",
+  "reactor": "Maven's internal engine for multi-module builds. It reads all module POMs, calculates the dependency graph between them, and builds them in the correct order automatically.",
+  "goal": "A specific task provided by a plugin (for example compiler:compile or surefire:test). Goals are bound to lifecycle phases and do the actual work of a build.",
+  "transitive dependency": "A dependency of your dependency. If your project needs library A and A needs B, Maven automatically resolves and downloads B for you.",
+  "BOM": "Bill of Materials — a special POM that centralizes and locks the versions of a related set of dependencies so you don't specify versions individually.",
+  "classpath": "The list of directories and JARs the JVM searches to load classes at compile time or runtime. Maven builds this automatically from your declared dependencies."
 };

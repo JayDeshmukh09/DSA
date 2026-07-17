@@ -976,6 +976,53 @@ header::after {
 [id="root"].dark .quiz-review-item.wrong { background: #2a130f; }
 [id="root"].dark .quiz-form { background: #231810; }
 [id="root"].dark .quiz-form input { background: #2e2010; color: var(--leather-2); }
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOSSARY TERM BADGES + MODAL
+═══════════════════════════════════════════════════════════════ */
+/* small "?" badge, styled like the action icons */
+.gloss-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 13px; height: 13px; margin: 0 2px; vertical-align: super;
+  font-family: 'Playfair Display', serif; font-size: 8px; font-weight: 700;
+  color: var(--leather); background: var(--gold-pale);
+  border: 1px solid var(--gold); border-radius: 50%;
+  cursor: pointer; user-select: none; line-height: 1;
+}
+.gloss-ico::after { content: '?'; }
+.gloss-ico:hover { background: var(--gold-light); }
+/* badges live inside markmap labels which are pointer-events:none by default */
+.markmap-foreign .gloss-ico { pointer-events: auto; }
+
+#gloss-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 1200;
+  background: rgba(30,15,6,0.72); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+#gloss-backdrop.open { display: flex; }
+#gloss-dialog {
+  width: min(460px, 90vw); max-height: 70vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--parchment); border: 2px solid var(--cream-border);
+  border-radius: 5px; box-shadow: 0 12px 48px rgba(30,15,6,0.55);
+  font-family: 'EB Garamond', serif; animation: nd-in 0.2s ease;
+}
+#gloss-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--parchment-2), var(--parchment));
+  border-bottom: 2px solid var(--cream-border);
+}
+#gloss-term { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--leather); }
+#gloss-close {
+  width: 30px; height: 30px; background: var(--btn-bg);
+  border: 1.5px solid var(--cream-border); border-radius: 3px;
+  cursor: pointer; color: var(--ink-2);
+}
+#gloss-close:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
+#gloss-def { padding: 18px; overflow-y: auto; font-size: 1.02rem; line-height: 1.7; color: var(--ink-2); }
+[id="root"].dark #gloss-def { color: var(--leather-2); }
+[id="root"].dark .gloss-ico { background: #3d2314; color: var(--gold-pale); }
 </style>
 </head>
 
@@ -1075,6 +1122,17 @@ header::after {
   </div>
 </div>
 
+<!-- Glossary Term Modal — must be in DOM before the inline script runs -->
+<div id="gloss-backdrop" role="dialog" aria-modal="true" aria-labelledby="gloss-term">
+  <div id="gloss-dialog">
+    <div id="gloss-head">
+      <div id="gloss-term"></div>
+      <button id="gloss-close" onclick="closeGloss()" title="Close (Esc)" aria-label="Close">&#x2715;</button>
+    </div>
+    <div id="gloss-def"></div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════════
      SCRIPTS
 ══════════════════════════════════════════════════════════════ -->
@@ -1128,6 +1186,47 @@ function toggleFab(fab) { (fab === openFabEl) ? closeFab() : openFab(fab); }
 function openFab(fab)   { closeFab(); fab.classList.add('open'); openFabEl = fab; }
 function closeFab()     { if (openFabEl) { openFabEl.classList.remove('open'); openFabEl = null; } }
 
+// ── Glossary term popups ─────────────────────────────────────────
+const GLOSS_RE = /\[\[(.+?)\]\]/g;
+
+// Append `text` to `parent`, converting [[term]] markers into word + clickable badge
+function renderGlossaryText(parent, text) {
+  let last = 0, m;
+  GLOSS_RE.lastIndex = 0;
+  while ((m = GLOSS_RE.exec(text))) {
+    if (m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)));
+    parent.appendChild(document.createTextNode(m[1]));      // the word itself
+    parent.appendChild(makeGlossBadge(m[1]));               // the "?" badge
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parent.appendChild(document.createTextNode(text.slice(last)));
+}
+
+function makeGlossBadge(term) {
+  const b = document.createElement('span');
+  b.className = 'gloss-ico';
+  b.dataset.term = term;
+  b.title = 'What does "' + term + '" mean?';
+  b.addEventListener('click', e => { e.stopPropagation(); openGloss(term); });
+  return b;
+}
+
+function openGloss(term) {
+  const def = MAVEN_GLOSSARY[term] || 'No definition available.';
+  document.getElementById('gloss-term').textContent = term;
+  document.getElementById('gloss-def').textContent = def;
+  document.getElementById('gloss-backdrop').classList.add('open');
+  document.addEventListener('keydown', onGlossKey, true);   // capture phase
+}
+function closeGloss() {
+  document.getElementById('gloss-backdrop').classList.remove('open');
+  document.removeEventListener('keydown', onGlossKey, true);
+}
+function onGlossKey(e) { if (e.key === 'Escape') { e.stopImmediatePropagation(); closeGloss(); } }
+document.getElementById('gloss-backdrop').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) closeGloss();
+});
+
 let _ndObserver = new MutationObserver(debounce(injectNodeIcons, 80));
 
 function injectNodeIcons() {
@@ -1180,6 +1279,20 @@ function injectNodeIcons() {
     });
 
     this.appendChild(fab);
+  });
+
+  // Convert [[term]] markers inside node labels into word + glossary badge.
+  // Runs while the observer is disconnected; re-runs on every markmap render
+  // (markmap recreates raw [[term]] text, which we reprocess each time).
+  d3.selectAll('.markmap-node foreignObject').each(function() {
+    const walker = document.createTreeWalker(this, NodeFilter.SHOW_TEXT);
+    const targets = [];
+    let n; while ((n = walker.nextNode())) if (n.nodeValue.includes('[[')) targets.push(n);
+    targets.forEach(tn => {
+      const frag = document.createDocumentFragment();
+      renderGlossaryText(frag, tn.nodeValue);
+      tn.parentNode.replaceChild(frag, tn);
+    });
   });
 
   // Resume watching for markmap re-renders (expand/collapse)
@@ -1438,7 +1551,7 @@ function openDialog(title, exp) {
   if (exp.summary) {
     const el = document.createElement('div');
     el.className = 'nd-summary';
-    el.textContent = exp.summary;
+    renderGlossaryText(el, exp.summary);
     body.appendChild(el);
   }
 
@@ -1449,7 +1562,7 @@ function openDialog(title, exp) {
       const wrap = document.createElement('div');
       wrap.className = 'nd-section';
       const h = document.createElement('div'); h.className = 'nd-section-heading'; h.textContent = sec.heading;
-      const p = document.createElement('div'); p.className = 'nd-section-body';    p.textContent = sec.body;
+      const p = document.createElement('div'); p.className = 'nd-section-body';    renderGlossaryText(p, sec.body);
       wrap.appendChild(h); wrap.appendChild(p);
       body.appendChild(wrap);
     });
@@ -1473,7 +1586,7 @@ function openDialog(title, exp) {
     const txt  = document.createElement('div'); txt.className = 'nd-callout-text';
     const lbl  = document.createElement('span'); lbl.className = 'nd-callout-label'; lbl.textContent = 'Interview Tip';
     txt.appendChild(lbl);
-    const p = document.createElement('span'); p.textContent = exp.tip; txt.appendChild(p);
+    const p = document.createElement('span'); renderGlossaryText(p, exp.tip); txt.appendChild(p);
     box.appendChild(icon); box.appendChild(txt);
     body.appendChild(box);
   }
@@ -1485,7 +1598,7 @@ function openDialog(title, exp) {
     const txt  = document.createElement('div'); txt.className = 'nd-callout-text';
     const lbl  = document.createElement('span'); lbl.className = 'nd-callout-label'; lbl.textContent = 'Analogy';
     txt.appendChild(lbl);
-    const p = document.createElement('span'); p.textContent = exp.analogy; txt.appendChild(p);
+    const p = document.createElement('span'); renderGlossaryText(p, exp.analogy); txt.appendChild(p);
     box.appendChild(icon); box.appendChild(txt);
     body.appendChild(box);
   }
