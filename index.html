@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maven Mind Map — Interview Guide</title>
+<title>StudyMind — Interactive Mind Map</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -1033,10 +1033,10 @@ header::after {
 ══════════════════════════════════════════════════════════════ -->
 <header>
   <div class="hdr-left">
-    <div class="emblem">M</div>
+    <div class="emblem">S</div>
     <div>
-      <div class="hdr-title" id="hdr-title">Maven Interview Mind Map</div>
-      <div class="hdr-sub" id="hdr-sub">Interview Guide · 11 Years Experience · Durgasoft by Nagoor Babu</div>
+      <div class="hdr-title" id="hdr-title">StudyMind</div>
+      <div class="hdr-sub" id="hdr-sub">Interactive Mind Map · Notes & Study Guide</div>
     </div>
   </div>
   <div class="hdr-right">
@@ -1094,7 +1094,7 @@ header::after {
   <span class="sc"><span class="key">Enter</span> next match</span>
   <span class="sc"><span class="key">Shift</span>+<span class="key">Enter</span> prev match</span>
   <span class="sc"><span class="key">Esc</span> clear search</span>
-  <span class="status-brand">Apache Maven · Project Management &amp; Build Automation</span>
+  <span class="status-brand">StudyMind · Notes &amp; Study Guide</span>
 </div>
 
 <!-- Node Detail Dialog — must be in DOM before the inline script runs -->
@@ -1140,14 +1140,14 @@ header::after {
 <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="data/maven-data.js"></script>
+<script src="data/data.js"></script>
 
 <script>
 // ── Populate header from meta ────────────────────────────────────
-document.getElementById('hdr-title').textContent = MAVEN_META.title;
+document.getElementById('hdr-title').textContent = APP_META.title;
 document.getElementById('hdr-sub').textContent =
-  MAVEN_META.subtitle + ' · ' + MAVEN_META.source;
-const topicCount = (MAVEN_ROOT.children || []).length;
+  APP_META.subtitle + ' · ' + APP_META.source;
+const topicCount = (APP_ROOT.children || []).length;
 document.getElementById('topic-badge').textContent = topicCount + ' Topics';
 
 // ── Create markmap ───────────────────────────────────────────────
@@ -1161,7 +1161,7 @@ const mmOptions = deriveOptions({
   zoom: true,
   pan: true,
 });
-const mm = Markmap.create('#mindmap', mmOptions, MAVEN_ROOT);
+const mm = Markmap.create('#mindmap', mmOptions, APP_ROOT);
 window.mm = mm;
 setTimeout(() => { mm.fit(); }, 400);
 
@@ -1174,9 +1174,9 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 // ── Extensible action registry — add a new node icon by adding one entry ──
 const NODE_ACTIONS = [
   { id: 'info', sym: 'i', cls: 'nd-act-info',
-    has: k => !!MAVEN_EXPLANATIONS[k], on: k => openDialog(k, MAVEN_EXPLANATIONS[k]) },
+    has: k => !!APP_EXPLANATIONS[k], on: k => openDialog(k, APP_EXPLANATIONS[k]) },
   { id: 'quiz', sym: 't', cls: 'nd-act-quiz',
-    has: k => !!MAVEN_QUIZZES[k],      on: k => openQuiz(k, MAVEN_QUIZZES[k]) },
+    has: k => !!APP_QUIZZES[k],      on: k => openQuiz(k, APP_QUIZZES[k]) },
   // Future: { id:'note', sym:'n', cls:'nd-act-note', has:k=>..., on:k=>... }
 ];
 
@@ -1212,7 +1212,7 @@ function makeGlossBadge(term) {
 }
 
 function openGloss(term) {
-  const def = MAVEN_GLOSSARY[term] || 'No definition available.';
+  const def = APP_GLOSSARY[term] || 'No definition available.';
   document.getElementById('gloss-term').textContent = term;
   document.getElementById('gloss-def').textContent = def;
   document.getElementById('gloss-backdrop').classList.add('open');
@@ -1364,14 +1364,14 @@ function walk(node, fn) {
 
 // ── Expand / Collapse All ────────────────────────────────────────
 function expandAll() {
-  walk(MAVEN_ROOT, n => { n.payload = { ...n.payload, fold: 0 }; });
-  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
+  walk(APP_ROOT, n => { n.payload = { ...n.payload, fold: 0 }; });
+  mm.setData(APP_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
 }
 function collapseAll() {
-  walk(MAVEN_ROOT, n => {
-    if (n !== MAVEN_ROOT) n.payload = { ...n.payload, fold: 1 };
+  walk(APP_ROOT, n => {
+    if (n !== APP_ROOT) n.payload = { ...n.payload, fold: 1 };
   });
-  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
+  mm.setData(APP_ROOT).then(() => { mm.fit(); injectNodeIcons(); });
 }
 
 
@@ -1637,7 +1637,7 @@ function shuffle(arr) {
 }
 
 function openQuiz(title, quiz) {
-  const count  = quiz.count || MAVEN_META.quizDefaultCount || 5;
+  const count  = quiz.count || APP_META.quizDefaultCount || 5;
   const picked = shuffle(quiz.questions).slice(0, Math.min(count, quiz.questions.length));
   quizState = {
     title,
@@ -1810,7 +1810,7 @@ function renderReport() {
   retake.className = 'quiz-btn';
   retake.textContent = '↻ Retake';
   retake.addEventListener('click', () => {
-    const quiz = MAVEN_QUIZZES[st.title];
+    const quiz = APP_QUIZZES[st.title];
     if (quiz) openQuiz(st.title, quiz);
   });
   const dl = document.createElement('button');
@@ -1964,7 +1964,7 @@ async function exportQuizPdf(name, email, correct, total, pct) {
   header.id = 'pdf-stamp';
   header.style.cssText = 'padding:16px 18px;margin-bottom:18px;border:2px solid #b8860b;border-radius:6px;background:#fdf6e3;font-family:Georgia,serif;';
   header.innerHTML =
-    `<div style="font-size:20px;font-weight:800;color:#2c1a0e;font-family:Georgia,serif;">Maven Quiz Report</div>` +
+    `<div style="font-size:20px;font-weight:800;color:#2c1a0e;font-family:Georgia,serif;">StudyMind Quiz Report</div>` +
     `<div style="font-size:14px;color:#5c3a1e;margin-top:6px;">Topic: <b>${escapeHtml(quizState.title)}</b></div>` +
     `<div style="font-size:13px;color:#3d2b1f;margin-top:8px;">Name: <b>${escapeHtml(name)}</b> &nbsp;|&nbsp; Email: <b>${escapeHtml(email)}</b></div>` +
     `<div style="font-size:13px;color:#3d2b1f;">Date: ${escapeHtml(dateStr)} &nbsp;|&nbsp; Score: <b>${correct}/${total} (${pct}%)</b></div>`;
@@ -1999,7 +1999,7 @@ async function exportQuizPdf(name, email, correct, total, pct) {
     }
     const safeTitle = quizState.title.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
     const dateFile = now.toISOString().slice(0, 10);
-    pdf.save(`Maven-Quiz-${safeTitle}-${dateFile}.pdf`);
+    pdf.save(`StudyMind-Quiz-${safeTitle}-${dateFile}.pdf`);
   } catch (e) {
     alert('Could not generate PDF: ' + e.message);
   } finally {

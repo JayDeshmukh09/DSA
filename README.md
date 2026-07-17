@@ -1,18 +1,18 @@
-# Maven Interview Mind Map
+# StudyMind — Interactive Mind Map
 
-An interactive, offline mind map for studying Maven — built for senior Java developers preparing for interviews. All content is stored in a plain JSON file, so you can add, edit, or extend topics without touching any HTML or JavaScript.
+An interactive, offline mind map for studying **any topic**. All content is stored in a plain JSON file, so you can add, edit, or extend notes without touching any HTML or JavaScript. The bundled sample dataset covers Maven for Java developers, but you can replace it with notes on any subject.
 
 ---
 
 ## Project Structure
 
 ```
-maven-mindmap/
+studymind/
 ├── index.html          # The interactive mind map (open this in a browser)
-├── build.py            # Build script — converts maven.json → maven-data.js
+├── build.py            # Build script — converts data.json → data.js
 └── data/
-    ├── maven.json      # All mind map content lives here — edit this file
-    └── maven-data.js   # Auto-generated — DO NOT edit manually
+    ├── data.json       # All mind map content lives here — edit this file
+    └── data.js         # Auto-generated — DO NOT edit manually
 ```
 
 ---
@@ -60,7 +60,7 @@ Nodes that have any actions (an explanation, a quiz, etc.) show a single gold **
 The **i** action icon (inside the **+** menu) appears on nodes that have a detailed explanation.
 
 - Click the **i** icon to open a full-page detail panel.
-- The panel contains a summary, section-by-section explanation, code examples, an interview tip, and an analogy.
+- The panel contains a summary, section-by-section explanation, code examples, a tip, and an analogy.
 - Close by clicking **✕**, pressing `Escape`, or clicking outside the panel.
 
 ### Quiz Dialog (Knowledge Check)
@@ -80,7 +80,7 @@ The green **t** action icon (inside the **+** menu) appears on nodes that have a
 
 1. Click **⬇ Download PDF**.
 2. Enter your **name** and **email** (email is validated).
-3. Click **Generate PDF**. The report — stamped with your name, email, date, topic, and score — downloads as `Maven-Quiz-<Topic>-<Date>.pdf`.
+3. Click **Generate PDF**. The report — stamped with your name, email, date, topic, and score — downloads as `StudyMind-Quiz-<Topic>-<Date>.pdf`.
 
 ### Text Selection vs Drag Mode
 
@@ -92,9 +92,9 @@ Click the **✦ Drag Mode** button in the toolbar to switch to **Select Mode** i
 
 ## How to Edit Content
 
-All mind map content is in `data/maven.json`. After every edit, run the build script to regenerate `data/maven-data.js`, then refresh `index.html` in the browser.
+All mind map content is in `data/data.json`. After every edit, run the build script to regenerate `data/data.js`, then refresh `index.html` in the browser.
 
-### Step 1 — Edit `data/maven.json`
+### Step 1 — Edit `data/data.json`
 
 The file has two top-level keys: `meta` and `root`.
 
@@ -102,9 +102,9 @@ The file has two top-level keys: `meta` and `root`.
 
 ```json
 "meta": {
-  "title": "Maven Interview Mind Map",
-  "subtitle": "Interview Guide — 11 Years Experience",
-  "source": "Durgasoft by Nagoor Babu",
+  "title": "StudyMind",
+  "subtitle": "Interactive Mind Map",
+  "source": "Notes & Study Guide",
   "version": "1.0",
   "lastUpdated": "2026-07-17"
 }
@@ -123,7 +123,7 @@ Every node follows this shape:
 }
 ```
 
-Nodes can be nested to any depth. The root node is always `"text": "Maven"`.
+Nodes can be nested to any depth. The root node is whatever top-level subject you choose (for example `"text": "Maven"` in the sample dataset).
 
 #### Adding a new topic
 
@@ -165,7 +165,7 @@ Any node can have an optional `"explanation"` object. This enables the **ⓘ** i
       "lang": "xml",
       "snippet": "<plugin>\n  <groupId>org.apache.maven.plugins</groupId>\n  <artifactId>maven-compiler-plugin</artifactId>\n</plugin>"
     },
-    "tip": "What to say in an interview about this topic.",
+    "tip": "What to say about this topic.",
     "analogy": "A plain-English comparison to something familiar."
   },
   "children": [ ... ]
@@ -180,7 +180,7 @@ All `explanation` fields are optional except `summary` — you can include any c
 | `sections` | array | Heading + body pairs — unlimited |
 | `code.lang` | string | Language label shown above the code block (e.g. `xml`, `bash`) |
 | `code.snippet` | string | Raw code text — use `\n` for line breaks |
-| `tip` | string | Amber callout box — interview angle |
+| `tip` | string | Amber callout box — key takeaway |
 | `analogy` | string | Green callout box — plain-English comparison |
 
 ### Step 2b — Add a quiz (optional)
@@ -251,14 +251,14 @@ Notes:
 Requires Python 3 (no extra packages needed).
 
 ```bash
-# From inside the maven-mindmap/ folder:
+# From inside the project folder:
 py build.py
 ```
 
 Expected output:
 
 ```
-Done! Built data\maven-data.js  (10 top-level topics, 27 explanations, 5 quizzes, 7 glossary terms)
+Done! Built data\data.js  (10 top-level topics, 27 explanations, 5 quizzes, 7 glossary terms)
 ```
 
 ### Step 4 — Refresh the browser
@@ -271,7 +271,7 @@ Press `Ctrl+R` (or `Cmd+R`) in the browser tab showing `index.html`. Your change
 
 ### Add a new leaf bullet point
 
-1. Open `data/maven.json`.
+1. Open `data/data.json`.
 2. Find the parent node by its `"text"` value.
 3. Add `{ "text": "Your new bullet" }` to its `"children"` array.
 4. Run `py build.py` and refresh.
@@ -284,13 +284,13 @@ Press `Ctrl+R` (or `Cmd+R`) in the browser tab showing `index.html`. Your change
 
 ### Extend an existing explanation
 
-1. Find the node by its `"text"` in `data/maven.json`.
+1. Find the node by its `"text"` in `data/data.json`.
 2. Edit or add fields inside its `"explanation"` object.
 3. Run `py build.py` and refresh.
 
 ### Change the topic covered entirely
 
-Replace the content of `data/maven.json` with a new structure following the same schema. Update `meta.title` and `meta.subtitle` to match. Run `py build.py` and refresh.
+Replace the content of `data/data.json` with a new structure following the same schema. Update `meta.title` and `meta.subtitle` to match. Run `py build.py` and refresh.
 
 ---
 
@@ -306,34 +306,34 @@ Replace the content of `data/maven.json` with a new structure following the same
 
 ## File Reference
 
-### `data/maven.json` — content source
+### `data/data.json` — content source
 
 The single file you need to edit. Controls every node label, every child relationship, and every detail dialog. The build script reads nothing else.
 
 ### `build.py` — build script
 
-Reads `data/maven.json` and writes `data/maven-data.js`. It:
+Reads `data/data.json` and writes `data/data.js`. It:
 - Converts the `{text, children}` tree into markmap's `{content, children, payload}` format.
 - Sets all nodes beyond depth 0 to start folded (`payload.fold = 1`).
-- Collects all `explanation` objects into a flat `MAVEN_EXPLANATIONS` lookup keyed by node text.
-- Collects all `quiz` objects into a flat `MAVEN_QUIZZES` lookup keyed by node text.
-- Emits the top-level `glossary` map as `MAVEN_GLOSSARY` (empty object if omitted).
+- Collects all `explanation` objects into a flat `APP_EXPLANATIONS` lookup keyed by node text.
+- Collects all `quiz` objects into a flat `APP_QUIZZES` lookup keyed by node text.
+- Emits the top-level `glossary` map as `APP_GLOSSARY` (empty object if omitted).
 
-Run it every time you change `maven.json`.
+Run it every time you change `data.json`.
 
-### `data/maven-data.js` — auto-generated
+### `data/data.js` — auto-generated
 
 Do not edit this file directly. It is overwritten every time `build.py` runs. Contains five JavaScript globals used by `index.html`:
 
-- `MAVEN_META` — header metadata (including `quizDefaultCount`)
-- `MAVEN_ROOT` — the full node tree in markmap format
-- `MAVEN_EXPLANATIONS` — flat lookup of node text → explanation object
-- `MAVEN_QUIZZES` — flat lookup of node text → quiz object
-- `MAVEN_GLOSSARY` — flat lookup of glossary term → definition string
+- `APP_META` — header metadata (including `quizDefaultCount`)
+- `APP_ROOT` — the full node tree in markmap format
+- `APP_EXPLANATIONS` — flat lookup of node text → explanation object
+- `APP_QUIZZES` — flat lookup of node text → quiz object
+- `APP_GLOSSARY` — flat lookup of glossary term → definition string
 
 ### `index.html` — the application
 
-Self-contained HTML file. Loads D3, markmap-view, jsPDF, and html2canvas from CDN, then loads `data/maven-data.js` as a local script. All styling, search logic, dialog rendering, the node action menu (FAB), the quiz engine, D3 charts, and PDF export live here. Only edit this file if you need to change the UI, color theme, or application behavior.
+Self-contained HTML file. Loads D3, markmap-view, jsPDF, and html2canvas from CDN, then loads `data/data.js` as a local script. All styling, search logic, dialog rendering, the node action menu (FAB), the quiz engine, D3 charts, and PDF export live here. Only edit this file if you need to change the UI, color theme, or application behavior.
 
 #### Adding a new node action icon
 
@@ -341,10 +341,10 @@ Node icons (i, t) are driven by a single registry, `NODE_ACTIONS`, in the inline
 
 ```javascript
 const NODE_ACTIONS = [
-  { id:'info', sym:'i', cls:'nd-act-info', has:k => !!MAVEN_EXPLANATIONS[k], on:k => openDialog(k, MAVEN_EXPLANATIONS[k]) },
-  { id:'quiz', sym:'t', cls:'nd-act-quiz', has:k => !!MAVEN_QUIZZES[k],      on:k => openQuiz(k, MAVEN_QUIZZES[k]) },
+  { id:'info', sym:'i', cls:'nd-act-info', has:k => !!APP_EXPLANATIONS[k], on:k => openDialog(k, APP_EXPLANATIONS[k]) },
+  { id:'quiz', sym:'t', cls:'nd-act-quiz', has:k => !!APP_QUIZZES[k],      on:k => openQuiz(k, APP_QUIZZES[k]) },
   // Add your action here:
-  { id:'note', sym:'n', cls:'nd-act-note', has:k => !!MY_DATA[k],            on:k => openMyThing(k, MY_DATA[k]) },
+  { id:'note', sym:'n', cls:'nd-act-note', has:k => !!MY_DATA[k],          on:k => openMyThing(k, MY_DATA[k]) },
 ];
 ```
 
