@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en" id="root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maven Mind Map — Interview Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CSS VARIABLES — Light (Parchment) & Dark (Aged Night) themes
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --parchment:     #f5edd6;
+  --parchment-2:   #ede0c4;
+  --parchment-3:   #e2d0a8;
+  --leather:       #2c1a0e;
+  --leather-2:     #3d2314;
+  --leather-3:     #5c3a1e;
+  --gold:          #b8860b;
+  --gold-light:    #d4a843;
+  --gold-pale:     #f0d080;
+  --ink:           #1e0f06;
+  --ink-2:         #3d2b1f;
+  --sepia:         #7a5c3a;
+  --rust:          #8b3a2f;
+  --cream-border:  #c9a86a;
+  --tb-bg:         #f0e4c8;
+  --tb-border:     #c9a86a;
+  --btn-bg:        #e8d5a3;
+  --btn-hover:     #d4b87a;
+  --btn-text:      #2c1a0e;
+  --input-bg:      #fdf6e3;
+  --input-border:  #c9a86a;
+  --input-focus:   #8b6914;
+  --muted:         #7a5c3a;
+  --status-bg:     rgba(245,237,214,0.95);
+  --node-text:     #1e0f06;
+  --link-color:    #8b6914;
+  --shadow:        0 2px 12px rgba(44,26,14,0.18);
+  --vignette: radial-gradient(ellipse at center, transparent 60%, rgba(44,26,14,0.25) 100%);
+}
+[id="root"].dark {
+  --parchment:     #1a1208;
+  --parchment-2:   #231810;
+  --parchment-3:   #2e2010;
+  --leather:       #f5edd6;
+  --leather-2:     #e8d5a3;
+  --leather-3:     #d4b87a;
+  --gold:          #d4a843;
+  --gold-light:    #f0c060;
+  --gold-pale:     #a07820;
+  --ink:           #f5edd6;
+  --ink-2:         #e8d5a3;
+  --sepia:         #c9a86a;
+  --cream-border:  #7a5c3a;
+  --tb-bg:         #231810;
+  --tb-border:     #5c3a1e;
+  --btn-bg:        #3d2314;
+  --btn-hover:     #5c3a1e;
+  --btn-text:      #f5edd6;
+  --input-bg:      #2c1a0e;
+  --input-border:  #5c3a1e;
+  --input-focus:   #d4a843;
+  --muted:         #c9a86a;
+  --status-bg:     rgba(26,18,8,0.95);
+  --node-text:     #f0e4c8;
+  --link-color:    #d4a843;
+  --shadow:        0 2px 16px rgba(0,0,0,0.5);
+  --vignette: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.5) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  background: var(--parchment);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.4s;
+  position: relative;
+}
+
+/* Parchment grain texture overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  opacity: 0.45;
+}
+
+/* Vignette */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: var(--vignette);
+  transition: background 0.4s;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER — leather book spine feel
+═══════════════════════════════════════════════════════════════ */
+header {
+  background: linear-gradient(135deg, #1e0c04 0%, #2c1a0e 40%, #3d2314 70%, #2c1a0e 100%);
+  border-bottom: 3px solid var(--gold);
+  padding: 10px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.45);
+  position: relative;
+  z-index: 10;
+  gap: 12px;
+}
+
+/* Decorative gold line inside header */
+header::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 20px; right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-pale), var(--gold), var(--gold-pale), transparent);
+  opacity: 0.5;
+}
+
+.hdr-left { display:flex; align-items:center; gap:14px; }
+
+.emblem {
+  width: 42px; height: 42px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 800;
+  color: var(--gold-light);
+  background: rgba(180,130,20,0.12);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(180,130,20,0.3), inset 0 0 6px rgba(180,130,20,0.1);
+}
+
+.hdr-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold-light);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.hdr-sub {
+  color: rgba(212,168,67,0.6);
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  font-style: italic;
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+
+.hdr-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+
+.badge {
+  background: rgba(180,130,20,0.18);
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  padding: 3px 11px;
+  border-radius: 3px;
+  font-family: 'EB Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.hdr-btn {
+  background: rgba(180,130,20,0.12);
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  width: 32px; height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
+  font-family: inherit;
+}
+.hdr-btn:hover { background: rgba(180,130,20,0.28); }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOOLBAR — aged wood / old book shelf
+═══════════════════════════════════════════════════════════════ */
+.toolbar {
+  background: var(--tb-bg);
+  border-bottom: 2px solid var(--cream-border);
+  padding: 8px 22px;
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+  transition: background 0.4s, border-color 0.4s;
+  position: relative;
+  z-index: 9;
+}
+
+/* Inner decorative line */
+.toolbar::after {
+  content: '';
+  position: absolute;
+  bottom: 3px; left: 18px; right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cream-border), transparent);
+  opacity: 0.4;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1; min-width: 160px; max-width: 280px;
+}
+.search-ico {
+  position: absolute; left: 9px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted); font-size: 13px;
+  pointer-events: none;
+  font-style: normal;
+}
+.search-input {
+  width: 100%;
+  padding: 7px 10px 7px 30px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 3px;
+  font-size: 14px;
+  font-family: 'EB Garamond', serif;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.4s;
+  letter-spacing: 0.2px;
+}
+.search-input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px rgba(139,105,20,0.15);
+}
+.search-input::placeholder { color: var(--muted); font-style: italic; }
+
+.match-count {
+  font-size: 12px;
+  font-family: 'EB Garamond', serif;
+  color: var(--muted);
+  min-width: 60px; white-space: nowrap;
+  font-style: italic;
+}
+.match-count.has { color: #5c8a3a; font-weight: 600; font-style: normal; }
+.match-count.none { color: var(--rust); }
+
+.btn-grp { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+
+.sep {
+  width: 1px; height: 22px;
+  background: var(--cream-border);
+  margin: 0 3px; opacity: 0.6; flex-shrink:0;
+}
+
+.btn {
+  padding: 6px 13px;
+  background: var(--btn-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: 'EB Garamond', serif;
+  color: var(--btn-text);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(44,26,14,0.12), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.btn:hover {
+  background: var(--btn-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 7px rgba(44,26,14,0.2), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.btn:active { transform: translateY(0); box-shadow: none; }
+
+.btn-icon {
+  width: 30px; height: 30px; padding:0;
+  justify-content: center;
+  font-size: 15px; font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MIND MAP CANVAS
+═══════════════════════════════════════════════════════════════ */
+#mm-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--parchment);
+  transition: background 0.4s;
+}
+
+#mm-wrap {
+  user-select: none;
+  -webkit-user-select: none;
+}
+#mindmap {
+  display: block;
+  width: 100%; height: 100%;
+  cursor: grab;
+  transition: background 0.4s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#mindmap:active { cursor: grabbing; }
+
+/* foreignObject text — no selection, clicks bubble to <g> */
+.markmap-foreign,
+.markmap-foreign * {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* Select mode overrides */
+#mm-wrap.select-mode #mindmap {
+  cursor: text;
+}
+#mm-wrap.select-mode #mindmap:active {
+  cursor: text;
+}
+#mm-wrap.select-mode .markmap-foreign,
+#mm-wrap.select-mode .markmap-foreign * {
+  user-select: text;
+  -webkit-user-select: text;
+  pointer-events: auto;
+  cursor: text;
+}
+
+/* ── Override markmap node styles → vintage ink look ─────────── */
+.markmap-node text {
+  font-family: 'EB Garamond', serif !important;
+  fill: var(--node-text) !important;
+  font-size: 15px !important;
+}
+.markmap-node > circle {
+  stroke: var(--link-color) !important;
+  stroke-width: 2px !important;
+}
+.markmap-link {
+  stroke: var(--link-color) !important;
+  stroke-opacity: 0.55 !important;
+  stroke-width: 1.5px !important;
+}
+.markmap-node-circle {
+  fill: var(--btn-bg) !important;
+  stroke: var(--gold) !important;
+}
+
+
+/* ── Search highlighting ─────────────────────────────────────── */
+.mm-dim { opacity: 0.12; transition: opacity 0.25s; }
+.mm-match circle {
+  stroke: var(--gold-light) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 5px rgba(180,135,20,0.65));
+}
+.mm-match { opacity: 1 !important; }
+
+/* Descendants of a match — visible but slightly muted */
+.mm-child { opacity: 1 !important; }
+.mm-child circle {
+  stroke: var(--sepia) !important;
+  stroke-width: 1.5px !important;
+}
+
+/* Ancestor path — visible, no special ring */
+.mm-ancestor { opacity: 0.75 !important; }
+
+/* Active links — ensure they are not dimmed */
+.markmap-link:not(.mm-dim) { stroke-opacity: 0.7 !important; }
+
+/* Active focused match — distinct red ring */
+.mm-focus circle {
+  stroke: #8b3a2f !important;
+  stroke-width: 4px !important;
+  filter: drop-shadow(0 0 7px rgba(139,58,47,0.75));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATUS BAR — old manuscript footer
+═══════════════════════════════════════════════════════════════ */
+.status-bar {
+  background: var(--status-bg);
+  border-top: 2px solid var(--cream-border);
+  backdrop-filter: blur(8px);
+  padding: 5px 22px;
+  display: flex; align-items: center; gap: 18px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  transition: background 0.4s;
+  position: relative; z-index: 9;
+}
+.sc {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'EB Garamond', serif;
+  font-size: 12px; color: var(--muted);
+  font-style: italic;
+}
+.key {
+  font-style: normal;
+  background: var(--btn-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 11px; font-weight: 600;
+  color: var(--ink-2);
+  font-family: 'EB Garamond', serif;
+  box-shadow: 0 1px 2px rgba(44,26,14,0.12);
+}
+.status-brand {
+  margin-left: auto;
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+
+/* ── Dark mode markmap overrides ─────────────────────────────── */
+[id="root"].dark #mindmap       { background: #1a1208; }
+[id="root"].dark .markmap-node text { fill: #f0e4c8 !important; }
+[id="root"].dark .markmap-link  { stroke: #7a5c3a !important; stroke-opacity: 0.6 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   NODE DETAIL DIALOG
+═══════════════════════════════════════════════════════════════ */
+#nd-backdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(30, 15, 6, 0.72);
+  backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+#nd-backdrop.open { display: flex; }
+
+#nd-dialog {
+  position: relative;
+  width: min(860px, 90vw);
+  max-height: 88vh;
+  display: flex; flex-direction: column;
+  background: var(--parchment);
+  border: 2px solid var(--cream-border);
+  border-radius: 4px;
+  box-shadow: 0 12px 48px rgba(30,15,6,0.55), inset 0 0 60px rgba(44,26,14,0.06);
+  overflow: hidden;
+  font-family: 'EB Garamond', serif;
+  animation: nd-in 0.22s ease;
+}
+@keyframes nd-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* Header */
+#nd-header {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 22px 26px 18px;
+  background: linear-gradient(135deg, var(--parchment-2) 0%, var(--parchment) 100%);
+  border-bottom: 2px solid var(--cream-border);
+  flex-shrink: 0;
+}
+#nd-title {
+  flex: 1;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem; font-weight: 700;
+  color: var(--leather);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+}
+#nd-close {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: var(--ink-2);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+#nd-close:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
+
+/* Scrollable body */
+#nd-body {
+  flex: 1; overflow-y: auto;
+  padding: 26px 30px 32px;
+  display: flex; flex-direction: column; gap: 22px;
+}
+#nd-body::-webkit-scrollbar { width: 6px; }
+#nd-body::-webkit-scrollbar-track { background: var(--parchment-2); }
+#nd-body::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
+
+/* Summary card */
+.nd-summary {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fdf6e3 0%, var(--parchment-2) 100%);
+  border-left: 4px solid var(--gold);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 1px 6px rgba(44,26,14,0.1);
+  font-size: 1.08rem; line-height: 1.65;
+  color: var(--ink);
+  font-style: italic;
+}
+
+/* Section blocks */
+.nd-section { display: flex; flex-direction: column; gap: 6px; }
+.nd-section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--leather-3);
+  border-bottom: 1px solid var(--parchment-3);
+  padding-bottom: 4px;
+  letter-spacing: 0.01em;
+}
+.nd-section-body {
+  font-size: 1rem; line-height: 1.72;
+  color: var(--ink-2);
+}
+
+/* Divider between sections */
+.nd-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--cream-border), transparent);
+  border: none;
+  margin: 2px 0;
+}
+
+/* Code block */
+.nd-code-wrap {
+  background: var(--parchment-2);
+  border: 1.5px solid var(--parchment-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.nd-code-label {
+  padding: 4px 12px;
+  background: var(--parchment-3);
+  font-family: 'EB Garamond', serif;
+  font-size: 0.78rem; font-style: italic;
+  color: var(--sepia);
+  border-bottom: 1px solid var(--cream-border);
+  letter-spacing: 0.04em;
+}
+.nd-code {
+  margin: 0; padding: 16px 18px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.82rem; line-height: 1.6;
+  color: var(--leather);
+  white-space: pre;
+  overflow-x: auto;
+}
+.nd-code::-webkit-scrollbar { height: 5px; }
+.nd-code::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
+
+/* Callout boxes */
+.nd-callout {
+  padding: 14px 18px;
+  border-radius: 3px;
+  font-size: 0.98rem; line-height: 1.68;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.nd-callout-icon {
+  flex-shrink: 0;
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+.nd-callout-text { flex: 1; }
+.nd-callout-label {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.nd-tip {
+  background: #fdf3dc;
+  border: 1.5px solid #d4a843;
+  color: #4a3000;
+}
+.nd-tip .nd-callout-label { color: #7a5000; }
+.nd-analogy {
+  background: #f0f7ec;
+  border: 1.5px solid #7aaa6a;
+  color: #1f3a18;
+}
+.nd-analogy .nd-callout-label { color: #3a6a2a; }
+
+/* Dark-mode dialog overrides */
+[id="root"].dark #nd-dialog {
+  background: var(--parchment);
+  border-color: var(--cream-border);
+}
+[id="root"].dark #nd-header { background: linear-gradient(135deg, var(--parchment-2) 0%, var(--parchment) 100%); }
+[id="root"].dark .nd-summary { background: linear-gradient(135deg, #2e2010 0%, #231810 100%); color: var(--leather-2); }
+[id="root"].dark .nd-section-body { color: var(--leather-2); }
+[id="root"].dark .nd-code-wrap { background: #231810; border-color: #3d2314; }
+[id="root"].dark .nd-code-label { background: #2e2010; color: var(--sepia); border-color: #3d2314; }
+[id="root"].dark .nd-code { color: var(--leather-2); }
+[id="root"].dark .nd-tip    { background: #2a1f00; border-color: #7a5000; color: #e0c070; }
+[id="root"].dark .nd-analogy{ background: #0d200a; border-color: #3a6a2a; color: #a0d090; }
+
+/* ── Info icon button ────────────────────────────────────────── */
+.nd-info-circle {
+  fill: var(--parchment);
+  stroke: var(--gold);
+  stroke-width: 1.5px;
+  cursor: pointer;
+  transition: fill 0.15s, stroke 0.15s;
+}
+.nd-info-btn:hover .nd-info-circle {
+  fill: var(--gold-light);
+  stroke: var(--gold);
+}
+.nd-info-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 600;
+  fill: var(--leather);
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+.nd-info-btn:hover .nd-info-text { fill: var(--ink); }
+.nd-info-btn { cursor: pointer; }
+
+/* Dark mode icon overrides */
+[id="root"].dark .nd-info-circle { fill: var(--parchment-2); }
+[id="root"].dark .nd-info-btn:hover .nd-info-circle { fill: var(--gold); }
+[id="root"].dark .nd-info-text { fill: var(--leather-2); }
+</style>
+</head>
+
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════════════ -->
+<header>
+  <div class="hdr-left">
+    <div class="emblem">M</div>
+    <div>
+      <div class="hdr-title" id="hdr-title">Maven Interview Mind Map</div>
+      <div class="hdr-sub" id="hdr-sub">Interview Guide · 11 Years Experience · Durgasoft by Nagoor Babu</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="badge" id="topic-badge">— topics</span>
+    <button class="hdr-btn" id="theme-btn" title="Toggle dark / light mode" onclick="toggleTheme()">🌙</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TOOLBAR
+══════════════════════════════════════════════════════════════ -->
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-ico">🔍</span>
+    <input class="search-input" id="search" type="text"
+           placeholder="Search the manuscript…"
+           oninput="doSearch(this.value)"
+           onkeydown="onSearchKey(event)" />
+  </div>
+  <span class="match-count" id="match-count"></span>
+  <button class="btn btn-icon" id="prev-btn" onclick="focusPrev()" title="Previous match (Shift+Enter)" style="display:none">&#8593;</button>
+  <button class="btn btn-icon" id="next-btn" onclick="focusNext()" title="Next match (Enter)"           style="display:none">&#8595;</button>
+
+  <div class="btn-grp">
+    <div class="sep"></div>
+    <button class="btn" onclick="mm.fit()" title="Fit map to screen">⊡ Fit</button>
+    <button class="btn" onclick="expandAll()"  title="Expand all nodes">＋ Expand All</button>
+    <button class="btn" onclick="collapseAll()" title="Collapse to root children">－ Collapse All</button>
+    <div class="sep"></div>
+    <button class="btn btn-icon" onclick="zoom(1.25)" title="Zoom in">＋</button>
+    <button class="btn btn-icon" onclick="zoom(0.8)"  title="Zoom out">－</button>
+    <div class="sep"></div>
+    <button class="btn" id="mode-btn" onclick="toggleMode()" title="Currently: Drag/Pan — click to switch to Select text">&#x2725; Drag Mode</button>
+    <div class="sep"></div>
+    <button class="btn" onclick="clearSearch()" title="Clear search">✕ Clear</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MIND MAP
+══════════════════════════════════════════════════════════════ -->
+<div id="mm-wrap">
+  <svg id="mindmap"></svg>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STATUS BAR
+══════════════════════════════════════════════════════════════ -->
+<div class="status-bar">
+  <span class="sc"><span class="key">Click</span> node — expand / collapse</span>
+  <span class="sc"><span class="key">Scroll</span> to zoom</span>
+  <span class="sc"><span class="key">Drag</span> to pan</span>
+  <span class="sc"><span class="key">F</span> fit to screen</span>
+  <span class="sc"><span class="key">Enter</span> next match</span>
+  <span class="sc"><span class="key">Shift</span>+<span class="key">Enter</span> prev match</span>
+  <span class="sc"><span class="key">Esc</span> clear search</span>
+  <span class="status-brand">Apache Maven · Project Management &amp; Build Automation</span>
+</div>
+
+<!-- Node Detail Dialog — must be in DOM before the inline script runs -->
+<div id="nd-backdrop" role="dialog" aria-modal="true" aria-labelledby="nd-title">
+  <div id="nd-dialog">
+    <div id="nd-header">
+      <div id="nd-title"></div>
+      <button id="nd-close" onclick="closeDialog()" title="Close (Esc)" aria-label="Close">&#x2715;</button>
+    </div>
+    <div id="nd-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
+<script src="data/maven-data.js"></script>
+
+<script>
+// ── Populate header from meta ────────────────────────────────────
+document.getElementById('hdr-title').textContent = MAVEN_META.title;
+document.getElementById('hdr-sub').textContent =
+  MAVEN_META.subtitle + ' · ' + MAVEN_META.source;
+const topicCount = (MAVEN_ROOT.children || []).length;
+document.getElementById('topic-badge').textContent = topicCount + ' Topics';
+
+// ── Create markmap ───────────────────────────────────────────────
+const { Markmap, deriveOptions } = window.markmap;
+const mmOptions = deriveOptions({
+  colorFreezeLevel: 2,
+  duration: 450,
+  maxWidth: 300,
+  spacingHorizontal: 65,
+  spacingVertical: 14,
+  zoom: true,
+  pan: true,
+});
+const mm = Markmap.create('#mindmap', mmOptions, MAVEN_ROOT);
+window.mm = mm;
+setTimeout(() => { mm.fit(); }, 400);
+
+// ── Info icon injection ───────────────────────────────────────────
+// Appends a small SVG "i" button to every node that has an explanation.
+// Re-runs after every render (expand/collapse re-creates DOM nodes).
+let _ndObserver = new MutationObserver(debounce(injectInfoIcons, 80));
+
+function injectInfoIcons() {
+  // Disconnect first so our own DOM mutations don't re-trigger the observer
+  _ndObserver.disconnect();
+
+  document.querySelectorAll('.nd-info-btn').forEach(el => el.remove());
+
+  d3.selectAll('.markmap-node').each(function(d) {
+    const key = d && d.content;
+    if (!key || !MAVEN_EXPLANATIONS[key]) return;
+    const fo = this.querySelector('foreignObject');
+    if (!fo) return;
+
+    const foX = fo.x.baseVal.value;      // negative: text is left of the junction dot
+    const r   = 8;                        // icon circle radius
+    const cx  = foX - r - 6;             // place just to the left of the text label
+    const cy  = 0;
+
+    const exp  = MAVEN_EXPLANATIONS[key];
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    icon.classList.add('nd-info-btn');
+    icon.setAttribute('transform', `translate(${cx},${cy})`);
+    icon.innerHTML =
+      `<circle r="${r}" class="nd-info-circle"/>` +
+      `<text class="nd-info-text" dy="0.35em">i</text>`;
+    icon.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openDialog(key, exp);
+    });
+    this.appendChild(icon);
+  });
+
+  // Resume watching for markmap re-renders (expand/collapse)
+  _ndObserver.observe(document.getElementById('mindmap'), { childList: true, subtree: true });
+}
+setTimeout(injectInfoIcons, 450);
+
+function debounce(fn, delay) {
+  let t; return function() { clearTimeout(t); t = setTimeout(fn, delay); };
+}
+
+// ── Theme toggle ─────────────────────────────────────────────────
+function toggleTheme() {
+  const root = document.getElementById('root');
+  const btn  = document.getElementById('theme-btn');
+  const dark = root.classList.toggle('dark');
+  btn.textContent = dark ? '☀️' : '🌙';
+}
+
+// ── Keyboard: F = fit ────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey) mm.fit();
+});
+
+// ── Zoom helper ──────────────────────────────────────────────────
+function zoom(factor) { mm.rescale(factor); }
+
+// ── Walk tree ────────────────────────────────────────────────────
+function walk(node, fn) {
+  fn(node);
+  (node.children || []).forEach(c => walk(c, fn));
+}
+
+// ── Expand / Collapse All ────────────────────────────────────────
+function expandAll() {
+  walk(MAVEN_ROOT, n => { n.payload = { ...n.payload, fold: 0 }; });
+  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectInfoIcons(); });
+}
+function collapseAll() {
+  walk(MAVEN_ROOT, n => {
+    if (n !== MAVEN_ROOT) n.payload = { ...n.payload, fold: 1 };
+  });
+  mm.setData(MAVEN_ROOT).then(() => { mm.fit(); injectInfoIcons(); });
+}
+
+
+// ── Search ───────────────────────────────────────────────────────
+// ── Tree traversal helpers ───────────────────────────────────────
+function getDescendantData(d) {
+  const set = new Set();
+  function walk(n) { set.add(n); (n.children || []).forEach(walk); }
+  walk(d);
+  return set;
+}
+function getAncestorData(d) {
+  const set = new Set();
+  let cur = d.parent;
+  while (cur) { set.add(cur); cur = cur.parent; }
+  return set;
+}
+
+// ── Search state ─────────────────────────────────────────────────
+let matchNodes = [];
+let matchIndex = 0;
+
+function doSearch(q) {
+  q = q.trim().toLowerCase();
+  const countEl = document.getElementById('match-count');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+
+  // Reset all state
+  matchNodes.forEach(n => n.classList.remove('mm-focus'));
+  matchNodes = [];
+  matchIndex = 0;
+
+  if (!q) {
+    d3.selectAll('.markmap-node').each(function() {
+      this.classList.remove('mm-dim', 'mm-match', 'mm-focus', 'mm-child', 'mm-ancestor');
+    });
+    d3.selectAll('.markmap-link').each(function() { this.classList.remove('mm-dim'); });
+    countEl.textContent   = '';
+    countEl.className     = 'match-count';
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    return;
+  }
+
+  // 1. Find direct matches with their D3 datum
+  const directMatches = [];
+  d3.selectAll('.markmap-node').each(function(d) {
+    const txt = (this.querySelector('foreignObject')?.textContent || '').toLowerCase();
+    if (txt.includes(q)) directMatches.push({ el: this, d });
+  });
+
+  // 2. Build active set = matched + all descendants + all ancestors
+  const activeData     = new Set();
+  const descendantData = new Set();
+  const ancestorData   = new Set();
+
+  directMatches.forEach(({ d }) => {
+    getDescendantData(d).forEach(x => { activeData.add(x); descendantData.add(x); });
+    getAncestorData(d).forEach(x  => { activeData.add(x); ancestorData.add(x); });
+    activeData.add(d);
+  });
+
+  // 3. Apply classes to nodes
+  d3.selectAll('.markmap-node').each(function(d) {
+    this.classList.remove('mm-dim', 'mm-match', 'mm-child', 'mm-ancestor', 'mm-focus');
+    if (!activeData.has(d)) {
+      this.classList.add('mm-dim');
+    } else if (directMatches.some(m => m.d === d)) {
+      this.classList.add('mm-match');
+      matchNodes.push(this);
+    } else if (descendantData.has(d)) {
+      this.classList.add('mm-child');
+    } else {
+      this.classList.add('mm-ancestor');
+    }
+  });
+
+  // 4. Apply to links (datum is the child node data in markmap)
+  d3.selectAll('.markmap-link').each(function(d) {
+    this.classList.toggle('mm-dim', !activeData.has(d));
+  });
+
+  if (matchNodes.length > 0) {
+    countEl.textContent   = '1 / ' + matchNodes.length;
+    countEl.className     = 'match-count has';
+    prevBtn.style.display = '';
+    nextBtn.style.display = '';
+    focusMatch(0);
+  } else {
+    countEl.textContent   = 'No match';
+    countEl.className     = 'match-count none';
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  }
+}
+
+// ── Drag / Select mode toggle ────────────────────────────────────
+let selectMode = false;
+const mmWrap  = document.getElementById('mm-wrap');
+const modeBtn = document.getElementById('mode-btn');
+const svgEl   = document.getElementById('mindmap');
+
+svgEl.addEventListener('mousedown', e => {
+  if (!selectMode) e.preventDefault();
+});
+
+function toggleMode() {
+  selectMode = !selectMode;
+  mmWrap.classList.toggle('select-mode', selectMode);
+  if (selectMode) {
+    modeBtn.innerHTML = '&#9000; Select Mode';
+    modeBtn.title = 'Currently: Select text \u2014 click to switch to Drag/Pan';
+    modeBtn.style.outline = '2px solid var(--gold)';
+  } else {
+    modeBtn.innerHTML = '&#x2725; Drag Mode';
+    modeBtn.title = 'Currently: Drag/Pan \u2014 click to switch to Select text';
+    modeBtn.style.outline = '';
+  }
+}
+
+// ── Focus navigation ─────────────────────────────────────────────
+function focusMatch(i) {
+  if (!matchNodes.length) return;
+  matchIndex = (i + matchNodes.length) % matchNodes.length;
+
+  matchNodes.forEach((n, idx) =>
+    n.classList.toggle('mm-focus', idx === matchIndex));
+
+  const g   = matchNodes[matchIndex];
+  const box = g.getBBox();
+  const t   = d3.zoomTransform(svgEl);
+
+  const nodeX = box.x + box.width  / 2;
+  const nodeY = box.y + box.height / 2;
+  const vpW   = svgEl.clientWidth;
+  const vpH   = svgEl.clientHeight;
+
+  const newTx = vpW / 2 - nodeX * t.k;
+  const newTy = vpH / 2 - nodeY * t.k;
+
+  d3.select(svgEl)
+    .transition().duration(350)
+    .call(mm.zoom.transform,
+      d3.zoomIdentity.translate(newTx, newTy).scale(t.k));
+
+  // Update counter label
+  const countEl = document.getElementById('match-count');
+  countEl.textContent = (matchIndex + 1) + ' / ' + matchNodes.length;
+}
+
+function focusNext() { focusMatch(matchIndex + 1); }
+function focusPrev() { focusMatch(matchIndex - 1); }
+
+function onSearchKey(e) {
+  if (e.key === 'Enter')  { e.preventDefault(); e.shiftKey ? focusPrev() : focusNext(); }
+  if (e.key === 'Escape') { clearSearch(); }
+}
+
+function clearSearch() {
+  const inp = document.getElementById('search');
+  inp.value = '';
+  doSearch('');
+  inp.focus();
+}
+
+// ── Node Detail Dialog ────────────────────────────────────────────
+function openDialog(title, exp) {
+  const dlg   = document.getElementById('nd-dialog');
+  const back  = document.getElementById('nd-backdrop');
+  document.getElementById('nd-title').textContent = title;
+
+  const body = document.getElementById('nd-body');
+  body.innerHTML = '';
+
+  // Summary
+  if (exp.summary) {
+    const el = document.createElement('div');
+    el.className = 'nd-summary';
+    el.textContent = exp.summary;
+    body.appendChild(el);
+  }
+
+  // Sections
+  if (exp.sections && exp.sections.length) {
+    exp.sections.forEach((sec, i) => {
+      if (i > 0) { const hr = document.createElement('hr'); hr.className = 'nd-divider'; body.appendChild(hr); }
+      const wrap = document.createElement('div');
+      wrap.className = 'nd-section';
+      const h = document.createElement('div'); h.className = 'nd-section-heading'; h.textContent = sec.heading;
+      const p = document.createElement('div'); p.className = 'nd-section-body';    p.textContent = sec.body;
+      wrap.appendChild(h); wrap.appendChild(p);
+      body.appendChild(wrap);
+    });
+  }
+
+  // Code block
+  if (exp.code) {
+    const wrap  = document.createElement('div'); wrap.className = 'nd-code-wrap';
+    const label = document.createElement('div'); label.className = 'nd-code-label';
+    label.textContent = exp.code.lang || 'code';
+    const pre  = document.createElement('pre'); pre.className = 'nd-code';
+    pre.textContent = exp.code.snippet;
+    wrap.appendChild(label); wrap.appendChild(pre);
+    body.appendChild(wrap);
+  }
+
+  // Interview tip callout
+  if (exp.tip) {
+    const box  = document.createElement('div'); box.className = 'nd-callout nd-tip';
+    const icon = document.createElement('span'); icon.className = 'nd-callout-icon'; icon.textContent = '💡';
+    const txt  = document.createElement('div'); txt.className = 'nd-callout-text';
+    const lbl  = document.createElement('span'); lbl.className = 'nd-callout-label'; lbl.textContent = 'Interview Tip';
+    txt.appendChild(lbl);
+    const p = document.createElement('span'); p.textContent = exp.tip; txt.appendChild(p);
+    box.appendChild(icon); box.appendChild(txt);
+    body.appendChild(box);
+  }
+
+  // Analogy callout
+  if (exp.analogy) {
+    const box  = document.createElement('div'); box.className = 'nd-callout nd-analogy';
+    const icon = document.createElement('span'); icon.className = 'nd-callout-icon'; icon.textContent = '🔗';
+    const txt  = document.createElement('div'); txt.className = 'nd-callout-text';
+    const lbl  = document.createElement('span'); lbl.className = 'nd-callout-label'; lbl.textContent = 'Analogy';
+    txt.appendChild(lbl);
+    const p = document.createElement('span'); p.textContent = exp.analogy; txt.appendChild(p);
+    box.appendChild(icon); box.appendChild(txt);
+    body.appendChild(box);
+  }
+
+  body.scrollTop = 0;
+  back.classList.add('open');
+  document.addEventListener('keydown', onDialogKey);
+}
+
+function closeDialog() {
+  document.getElementById('nd-backdrop').classList.remove('open');
+  document.removeEventListener('keydown', onDialogKey);
+}
+
+function onDialogKey(e) {
+  if (e.key === 'Escape') closeDialog();
+}
+
+// Close on backdrop click (not on dialog itself)
+document.getElementById('nd-backdrop').addEventListener('click', function(e) {
+  if (e.target === this) closeDialog();
+});
+</script>
+</body>
+</html>
