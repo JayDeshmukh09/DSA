@@ -320,6 +320,11 @@ header::after {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* ── Fullscreen study mode — hide chrome, keep slim toolbar ───── */
+#root.fs-active header,
+#root.fs-active .status-bar { display: none; }
+#root.fs-active .toolbar { border-top: none; }
 #mindmap:active { cursor: grabbing; }
 
 /* foreignObject text — no selection, clicks bubble to <g> */
@@ -1011,6 +1016,7 @@ header::after {
   <div class="btn-grp">
     <div class="sep"></div>
     <button class="btn" onclick="mm.fit()" title="Fit map to screen">⊡ Fit</button>
+    <button class="btn" id="fs-btn" onclick="toggleFullscreen()" title="Fullscreen study mode">⛶ Fullscreen</button>
     <button class="btn" onclick="expandAll()"  title="Expand all nodes">＋ Expand All</button>
     <button class="btn" onclick="collapseAll()" title="Collapse to root children">－ Collapse All</button>
     <div class="sep"></div>
@@ -1197,6 +1203,36 @@ function toggleTheme() {
   const btn  = document.getElementById('theme-btn');
   const dark = root.classList.toggle('dark');
   btn.textContent = dark ? '☀️' : '🌙';
+}
+
+// ── Fullscreen study mode ────────────────────────────────────────
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    const req = document.documentElement.requestFullscreen?.();
+    if (req && req.catch) {
+      req.catch(() => { document.getElementById('root').classList.toggle('fs-active'); afterFsChange(); });
+    } else {
+      // No native Fullscreen API — fall back to class-only mode
+      document.getElementById('root').classList.toggle('fs-active');
+      afterFsChange();
+    }
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  const on = !!document.fullscreenElement;
+  document.getElementById('root').classList.toggle('fs-active', on);
+  afterFsChange();
+});
+
+function afterFsChange() {
+  const on  = document.getElementById('root').classList.contains('fs-active');
+  const btn = document.getElementById('fs-btn');
+  if (btn) btn.innerHTML = on ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
+  // Let layout settle, then refit the map to the new viewport
+  setTimeout(() => { mm.fit(); }, 120);
 }
 
 // ── Keyboard: F = fit ────────────────────────────────────────────

@@ -29,6 +29,7 @@ maven-mindmap/
 | Pan | Click and drag on the canvas |
 | Zoom | Scroll wheel |
 | Fit to screen | Click **Fit** button or press `F` |
+| Fullscreen study mode | Click **⛶ Fullscreen** (hides header and status bar; `Esc` exits) |
 | Expand one level | Click a node |
 | Expand all | Click **+ Expand All** |
 | Collapse all | Click **- Collapse All** |
