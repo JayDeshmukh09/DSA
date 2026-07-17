@@ -620,63 +620,75 @@ header::after {
 [id="root"].dark .nd-tip    { background: #2a1f00; border-color: #7a5000; color: #e0c070; }
 [id="root"].dark .nd-analogy{ background: #0d200a; border-color: #3a6a2a; color: #a0d090; }
 
-/* ── Info icon button ────────────────────────────────────────── */
-.nd-info-circle {
+/* ── Node FAB (speed-dial icon menu) ─────────────────────────── */
+.nd-fab-circle {
   fill: var(--parchment);
   stroke: var(--gold);
   stroke-width: 1.5px;
-  cursor: pointer;
   transition: fill 0.15s, stroke 0.15s;
 }
-.nd-info-btn:hover .nd-info-circle {
-  fill: var(--gold-light);
-  stroke: var(--gold);
+.nd-fab-trigger { cursor: pointer; }
+.nd-fab-trigger:hover .nd-fab-circle { fill: var(--gold-light); }
+.nd-fab-plus line {
+  stroke: var(--leather);
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s ease;
 }
-.nd-info-text {
-  font-family: 'EB Garamond', serif;
-  font-size: 10px;
-  font-style: italic;
-  font-weight: 600;
-  fill: var(--leather);
-  text-anchor: middle;
-  pointer-events: none;
-  user-select: none;
+.nd-fab.open .nd-fab-plus {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
 }
-.nd-info-btn:hover .nd-info-text { fill: var(--ink); }
-.nd-info-btn { cursor: pointer; }
 
-/* ── Quiz "t" icon button ────────────────────────────────────── */
-.nd-quiz-circle {
-  fill: var(--parchment);
-  stroke: #4a7c3a;
-  stroke-width: 1.5px;
+/* Action icons — stacked under the trigger when closed, slide out when open */
+.nd-action {
   cursor: pointer;
-  transition: fill 0.15s, stroke 0.15s;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translateX(0) scale(0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
-.nd-quiz-btn:hover .nd-quiz-circle {
-  fill: #7aaa6a;
-  stroke: #3a6a2a;
+.nd-fab.open .nd-action {
+  transform: translateX(var(--tx)) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: calc(var(--i) * 45ms);
 }
-.nd-quiz-text {
+.nd-action-circle {
+  fill: var(--parchment);
+  stroke-width: 1.5px;
+  transition: filter 0.15s;
+}
+.nd-action-text {
   font-family: 'EB Garamond', serif;
   font-size: 10px;
   font-style: italic;
   font-weight: 700;
-  fill: #2f5020;
   text-anchor: middle;
   pointer-events: none;
   user-select: none;
 }
-.nd-quiz-btn:hover .nd-quiz-text { fill: #0d200a; }
-.nd-quiz-btn { cursor: pointer; }
+.nd-action:hover .nd-action-circle { filter: brightness(0.95); }
 
-/* Dark mode icon overrides */
-[id="root"].dark .nd-info-circle { fill: var(--parchment-2); }
-[id="root"].dark .nd-info-btn:hover .nd-info-circle { fill: var(--gold); }
-[id="root"].dark .nd-info-text { fill: var(--leather-2); }
-[id="root"].dark .nd-quiz-circle { fill: var(--parchment-2); stroke: #7aaa6a; }
-[id="root"].dark .nd-quiz-btn:hover .nd-quiz-circle { fill: #3a6a2a; }
-[id="root"].dark .nd-quiz-text { fill: #a0d090; }
+/* Per-action colors */
+.nd-act-info .nd-action-circle { stroke: var(--gold); }
+.nd-act-info .nd-action-text   { fill: var(--leather); }
+.nd-act-quiz .nd-action-circle { stroke: #4a7c3a; }
+.nd-act-quiz .nd-action-text   { fill: #2f5020; }
+
+/* Dark mode overrides */
+[id="root"].dark .nd-fab-circle,
+[id="root"].dark .nd-action-circle { fill: var(--parchment-2); }
+[id="root"].dark .nd-fab-plus line { stroke: var(--leather-2); }
+[id="root"].dark .nd-act-info .nd-action-text { fill: var(--leather-2); }
+[id="root"].dark .nd-act-quiz .nd-action-circle { stroke: #7aaa6a; }
+[id="root"].dark .nd-act-quiz .nd-action-text { fill: #a0d090; }
 
 /* ═══════════════════════════════════════════════════════════════
    QUIZ DIALOG
@@ -1090,55 +1102,90 @@ window.mm = mm;
 setTimeout(() => { mm.fit(); }, 400);
 
 // ── Node icon injection ───────────────────────────────────────────
-// Appends small SVG buttons ("i" for info, "t" for quiz) to nodes.
+// Injects a single "+" FAB trigger per node; clicking it slides the
+// action icons (i, t, ...) out leftward speed-dial style.
 // Re-runs after every render (expand/collapse re-creates DOM nodes).
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+// ── Extensible action registry — add a new node icon by adding one entry ──
+const NODE_ACTIONS = [
+  { id: 'info', sym: 'i', cls: 'nd-act-info',
+    has: k => !!MAVEN_EXPLANATIONS[k], on: k => openDialog(k, MAVEN_EXPLANATIONS[k]) },
+  { id: 'quiz', sym: 't', cls: 'nd-act-quiz',
+    has: k => !!MAVEN_QUIZZES[k],      on: k => openQuiz(k, MAVEN_QUIZZES[k]) },
+  // Future: { id:'note', sym:'n', cls:'nd-act-note', has:k=>..., on:k=>... }
+];
+
+// ── FAB open/close state (single menu open at a time) ────────────
+let openFabEl = null;
+function toggleFab(fab) { (fab === openFabEl) ? closeFab() : openFab(fab); }
+function openFab(fab)   { closeFab(); fab.classList.add('open'); openFabEl = fab; }
+function closeFab()     { if (openFabEl) { openFabEl.classList.remove('open'); openFabEl = null; } }
+
 let _ndObserver = new MutationObserver(debounce(injectNodeIcons, 80));
 
 function injectNodeIcons() {
   // Disconnect first so our own DOM mutations don't re-trigger the observer
   _ndObserver.disconnect();
 
-  document.querySelectorAll('.nd-info-btn, .nd-quiz-btn').forEach(el => el.remove());
+  document.querySelectorAll('.nd-fab').forEach(el => el.remove());
+  openFabEl = null;
 
   d3.selectAll('.markmap-node').each(function(d) {
     const key = d && d.content;
     if (!key) return;
-    const exp  = MAVEN_EXPLANATIONS[key];
-    const quiz = MAVEN_QUIZZES[key];
-    if (!exp && !quiz) return;
+    const applicable = NODE_ACTIONS.filter(a => a.has(key));
+    if (!applicable.length) return;
     const fo = this.querySelector('foreignObject');
     if (!fo) return;
 
-    const foX = fo.x.baseVal.value;      // negative: text is left of the junction dot
-    const r   = 8;                        // icon circle radius
-    const gap = 4;
+    const foX  = fo.x.baseVal.value;      // negative: text is left of the junction dot
+    const r    = 8;                        // icon circle radius
+    const step = 2 * r + 6;               // spacing between stacked icons
+    const cx   = foX - r - 6;             // trigger anchor (same as old icon anchor)
 
-    // Build ordered icon list (closest to text first, stacks leftward)
-    const icons = [];
-    if (exp)  icons.push({ cls: 'nd-info-btn', circle: 'nd-info-circle', text: 'nd-info-text', ch: 'i', on: () => openDialog(key, exp) });
-    if (quiz) icons.push({ cls: 'nd-quiz-btn', circle: 'nd-quiz-circle', text: 'nd-quiz-text', ch: 't', on: () => openQuiz(key, quiz) });
+    const fab = document.createElementNS(SVG_NS, 'g');
+    fab.classList.add('nd-fab');
+    fab.setAttribute('transform', `translate(${cx},0)`);
 
-    const node = this;
-    icons.forEach((cfg, idx) => {
-      const cx = foX - r - 6 - idx * (2 * r + gap);
-      const g  = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.classList.add(cfg.cls);
-      g.setAttribute('transform', `translate(${cx},0)`);
+    // Trigger (+ rotates to x when open)
+    const trig = document.createElementNS(SVG_NS, 'g');
+    trig.classList.add('nd-fab-trigger');
+    trig.innerHTML =
+      `<circle r="${r}" class="nd-fab-circle"/>` +
+      `<g class="nd-fab-plus">` +
+        `<line x1="-3.5" y1="0" x2="3.5" y2="0"/>` +
+        `<line x1="0" y1="-3.5" x2="0" y2="3.5"/>` +
+      `</g>`;
+    trig.addEventListener('click', function(e) { e.stopPropagation(); toggleFab(fab); });
+    fab.appendChild(trig);
+
+    // Action icons (slide out leftward with a stagger)
+    applicable.forEach((a, i) => {
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.classList.add('nd-action', a.cls);
+      g.style.setProperty('--tx', `${-(i + 1) * step}px`);
+      g.style.setProperty('--i', i);
       g.innerHTML =
-        `<circle r="${r}" class="${cfg.circle}"/>` +
-        `<text class="${cfg.text}" dy="0.35em">${cfg.ch}</text>`;
-      g.addEventListener('click', function(e) {
-        e.stopPropagation();
-        cfg.on();
-      });
-      node.appendChild(g);
+        `<circle r="${r}" class="nd-action-circle"/>` +
+        `<text class="nd-action-text" dy="0.35em">${a.sym}</text>`;
+      g.addEventListener('click', function(e) { e.stopPropagation(); closeFab(); a.on(key); });
+      fab.appendChild(g);
     });
+
+    this.appendChild(fab);
   });
 
   // Resume watching for markmap re-renders (expand/collapse)
   _ndObserver.observe(document.getElementById('mindmap'), { childList: true, subtree: true });
 }
 setTimeout(injectNodeIcons, 450);
+
+// Close the FAB when clicking the canvas (not on a FAB) or pressing Escape
+document.getElementById('mindmap').addEventListener('click', function(e) {
+  if (!e.target.closest('.nd-fab')) closeFab();
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeFab(); });
 
 function debounce(fn, delay) {
   let t; return function() { clearTimeout(t); t = setTimeout(fn, delay); };
