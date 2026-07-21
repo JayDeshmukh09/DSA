@@ -124,27 +124,15 @@
             "children": [
               {
                 "text": "Static Arrays",
-                "children": [
-                  {
-                    "text": "i: Implement fixed-size contiguous memory allocation in Java."
-                  }
-                ]
+                "explanation": "### 🧱 Static Arrays\n\n**What is it?**\n* A collection of items stored at **contiguous (adjacent) memory locations**.\n* Size is fixed upon creation. Cannot be resized.\n\n<br>\n\n**Complexities:**\n* **Access:** $O(1)$ (Direct index calculation `base_address + index * size`)\n* **Search:** $O(N)$\n* **Insert/Delete:** $O(N)$ (Requires shifting all subsequent elements)\n\n<br>\n\n**☕ JVM & Senior Trap (Mechanical Sympathy):**\n* Primitive arrays (`int[]`) are incredibly fast because they live in a single contiguous block of memory, allowing the CPU to load chunks directly into the ultra-fast L1 Cache (Spatial Locality).\n* *The Trap:* An Object array (`Integer[]`) does NOT store the numbers contiguously. It stores *pointers* contiguously. The actual Integer objects are scattered across the Heap, causing Cache Misses and 16-byte object header bloat per number!\n\n<br>\n\n**☕ Java Example:**\n```java\n// Fixed size of 5. Memory is allocated on the Heap.\nint[] arr = new int[5]; \n```"
               },
               {
                 "text": "Dynamic Arrays",
-                "children": [
-                  {
-                    "text": "i: Code a custom ArrayList class from scratch that doubles capacity dynamically."
-                  }
-                ]
+                "explanation": "### 📈 Dynamic Arrays\n\n**What is it?**\n* Arrays that automatically resize themselves when they run out of capacity.\n* In Java, this is the `ArrayList<T>` class.\n\n<br>\n\n**How it works (Java Under the Hood):**\n1. It wraps a standard static array (default capacity is usually 10).\n2. When you add an element and it's full, it creates a NEW array that is **1.5x larger** (`oldCapacity + (oldCapacity >> 1)`).\n3. It uses `Arrays.copyOf()` to copy all old elements to the new array.\n\n<br>\n\n**Complexities:**\n* **Add (Append):** Amortized $O(1)$. (Usually $O(1)$, but occasionally $O(N)$ when a resize is triggered).\n* **Insert/Delete at index:** $O(N)$.\n\n<br>\n\n**🚨 Senior Interview Trap:**\n* In high-frequency trading or low-latency systems, the $O(N)$ array copy during resizing causes severe latency spikes.\n* *Senior Fix:* Always pre-allocate the capacity if the approximate size is known: `new ArrayList<>(10000);` to prevent dynamic resizing."
               },
               {
                 "text": "Multi-Dimensional Arrays",
-                "children": [
-                  {
-                    "text": "i: Work with matrices and understand row-major vs column-major storage."
-                  }
-                ]
+                "explanation": "### 🧊 Multi-Dimensional Arrays\n\n**What is it?**\n* Arrays of arrays. Commonly 2D matrices (Rows x Columns).\n\n<br>\n\n**☕ JVM Implementation Fact:**\n* In languages like C/C++, a 2D array is a single flat block of memory mapped mathematically.\n* In Java, a 2D array (`int[][]`) is an **Array of Pointers**. The outer array holds memory references to the inner row arrays. The rows do NOT have to be contiguous with each other, and can even be different lengths (Jagged Arrays)!\n\n<br>\n\n**🚨 Cache Locality Trap:**\n* **Row-Major Traversal:** Looping `arr[row][col]` is fast because elements in a row are contiguous.\n* **Column-Major Traversal:** Looping `arr[col][row]` is incredibly slow in Java. It forces the CPU to jump between different memory addresses for every single read, bypassing the L1 Cache completely."
               }
             ]
           },
@@ -153,27 +141,15 @@
             "children": [
               {
                 "text": "Singly Linked List",
-                "children": [
-                  {
-                    "text": "i: Build a custom class with sequential Node elements and basic CRUD methods."
-                  }
-                ]
+                "explanation": "### 🔗 Singly Linked List\n\n**What is it?**\n* A linear structure where elements are NOT stored contiguously.\n* Each element is an object (a `Node`) containing data and a reference (`next`) to the next Node.\n\n<br>\n\n**Complexities:**\n* **Access/Search:** $O(N)$ (Must traverse from the Head pointer).\n* **Insert/Delete at Head:** $O(1)$ (Just update the pointer).\n* **Insert/Delete at middle/end:** $O(N)$ (Must traverse to find the spot).\n\n<br>\n\n**☕ Full Java Implementation:**\n```java\nclass Node {\n    int data;\n    Node next;\n    Node(int data) { this.data = data; this.next = null; }\n}\n\npublic class SinglyLinkedList {\n    Node head;\n\n    // O(1) Insert at Head\n    public void insertAtHead(int val) {\n        Node newNode = new Node(val);\n        newNode.next = head;\n        head = newNode;\n    }\n}\n```"
               },
               {
                 "text": "Doubly Linked List",
-                "children": [
-                  {
-                    "text": "i: Implement bidirectionally linked nodes with next and previous pointers."
-                  }
-                ]
+                "explanation": "### 🔄 Doubly Linked List\n\n**What is it?**\n* A Linked List where every Node has TWO pointers: `next` and `prev`.\n* Java's built-in `java.util.LinkedList` is implemented as a Doubly Linked List.\n\n<br>\n\n**Trade-offs:**\n* **Pros:** Allows traversing backward. Deleting a known Node is $O(1)$ because you instantly have access to its predecessor.\n* **Cons:** Takes more memory (extra 8 bytes for the `prev` reference per Node). More complex pointer logic to maintain.\n\n<br>\n\n**☕ Java Node Structure:**\n```java\nclass Node {\n    int data;\n    Node next, prev;\n    Node(int data) {\n        this.data = data;\n        this.next = this.prev = null;\n    }\n}\n```"
               },
               {
                 "text": "Circular Linked List",
-                "children": [
-                  {
-                    "text": "i: Create a list where the tail node points back to the head node."
-                  }
-                ]
+                "explanation": "### 🎡 Circular Linked List\n\n**What is it?**\n* A Linked List where the last Node's `next` pointer points back to the `Head` instead of `null`.\n* Can be Singly or Doubly circular.\n\n<br>\n\n**💡 Practical Use Cases:**\n* **Round-Robin Scheduling:** OS CPU task scheduling.\n* **Multiplayer Games:** Passing turns in a circle.\n\n<br>\n\n**🚨 Infinite Loop Trap:**\n* Standard traversal `while(curr != null)` will crash your program in an infinite loop.\n* *Fix:* Save the Head reference and loop until `curr.next == head`."
               }
             ]
           },
@@ -182,19 +158,11 @@
             "children": [
               {
                 "text": "Array-Based Stack",
-                "children": [
-                  {
-                    "text": "i: Implement a LIFO stack from scratch using a fixed-size Java array."
-                  }
-                ]
+                "explanation": "### 🥞 Array-Based Stack\n\n**What is it?**\n* A LIFO (Last In, First Out) data structure built on top of a static array.\n* Uses an integer pointer `top` (initialized to -1) to track the active element.\n\n<br>\n\n**Complexities:**\n* **Push (Insert):** $O(1)$ (Unless full, then throws Overflow or resizes).\n* **Pop (Remove):** $O(1)$.\n* **Peek:** $O(1)$.\n\n<br>\n\n**☕ Full Java Implementation:**\n```java\npublic class ArrayStack {\n    int[] arr;\n    int top = -1;\n\n    public ArrayStack(int capacity) {\n        arr = new int[capacity];\n    }\n\n    public void push(int val) {\n        if (top == arr.length - 1) throw new StackOverflowError();\n        arr[++top] = val;\n    }\n\n    public int pop() {\n        if (top == -1) throw new RuntimeException(\"Stack Underflow\");\n        return arr[top--];\n    }\n}\n```"
               },
               {
                 "text": "Linked List-Based Stack",
-                "children": [
-                  {
-                    "text": "i: Implement a LIFO stack with dynamic sizing using custom node elements."
-                  }
-                ]
+                "explanation": "### 🥞 Linked List-Based Stack\n\n**What is it?**\n* A LIFO structure built using a Singly Linked List.\n* The `head` of the list acts as the `top` of the stack.\n\n<br>\n\n**Array vs. Linked List Stack Trade-offs:**\n* **Array Stack:** Extremely fast (CPU Cache friendly), but has a fixed size limit (or requires expensive array copying to resize).\n* **List Stack:** Dynamic size (never overflows unless RAM is full), but suffers from memory overhead (Node pointers) and is slower due to CPU Cache misses.\n\n<br>\n\n**☕ Java Core Logic:**\n```java\n// Push is just Insert-At-Head\npublic void push(int val) {\n    Node newNode = new Node(val);\n    newNode.next = top;\n    top = newNode;\n}\n\n// Pop is just Delete-At-Head\npublic int pop() {\n    if (top == null) throw new RuntimeException();\n    int val = top.data;\n    top = top.next;\n    return val;\n}\n```"
               }
             ]
           },
@@ -203,27 +171,15 @@
             "children": [
               {
                 "text": "Simple Queue",
-                "children": [
-                  {
-                    "text": "i: Implement a FIFO queue using arrays with head and tail tracking pointers."
-                  }
-                ]
+                "explanation": "### 🚶 Simple Queue (FIFO)\n\n**What is it?**\n* A FIFO (First In, First Out) structure. Think of a line at a ticket counter.\n* Uses two pointers: `front` (where elements are removed) and `rear` (where elements are added).\n\n<br>\n\n**🚨 The Array Implementation Trap:**\n* If you build a standard queue using an Array, every time you `dequeue()`, the `front` pointer moves forward.\n* *The Bug:* The spaces at the beginning of the array become permanently empty and useless. Even if the array has empty spaces, `enqueue()` will fail if `rear` reaches the end.\n* *The Solution:* Circular Queues."
               },
               {
                 "text": "Circular Queue",
-                "children": [
-                  {
-                    "text": "i: Solve array memory wastage by wrapping index pointers back to index zero."
-                  }
-                ]
+                "explanation": "### 🍩 Circular Queue\n\n**What is it?**\n* Solves the \"wasted space\" problem of standard Array Queues.\n* Connects the end of the array back to the beginning using Modulo arithmetic.\n\n<br>\n\n**The Math:**\n* Instead of `rear = rear + 1`, we use **`rear = (rear + 1) % capacity`**.\n* If capacity is 5, and rear is at index 4: `(4 + 1) % 5 = 0`. The rear wraps back to index 0!\n\n<br>\n\n**☕ Java Core Logic:**\n```java\npublic class CircularQueue {\n    int[] arr; int front = -1, rear = -1, size = 0;\n\n    public void enqueue(int val) {\n        if (size == arr.length) throw new RuntimeException(\"Full\");\n        if (front == -1) front = 0;\n        rear = (rear + 1) % arr.length; // Modulo wrapping\n        arr[rear] = val;\n        size++;\n    }\n}\n```"
               },
               {
                 "text": "Deque (Double-Ended Queue)",
-                "children": [
-                  {
-                    "text": "i: Code a versatile queue allowing insertion and deletion at both ends."
-                  }
-                ]
+                "explanation": "### 🌭 Deque (Double-Ended Queue)\n\n**What is it?**\n* A specialized queue where you can insert OR delete from **BOTH ends** (front and rear).\n* It can behave as both a Queue AND a Stack.\n\n<br>\n\n**☕ Java's `ArrayDeque` (Senior Fact):**\n* Java provides a highly optimized class called `ArrayDeque`.\n* **Crucial Rule:** If you need a Stack in Java, NEVER use the legacy `java.util.Stack` class (it is synchronized and heavily bloated). Always use `Deque<Integer> stack = new ArrayDeque<>();`.\n* `ArrayDeque` is implemented internally as a resizable Circular Array, making it significantly faster than `LinkedList`."
               }
             ]
           }
